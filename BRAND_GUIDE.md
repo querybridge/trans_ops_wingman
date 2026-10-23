@@ -207,6 +207,9 @@ The site uses simple line icons, and circular arrow buttons (sky-blue circle, wh
 - Selected row: 3px Blue left border plus light-gray background
 - ID columns in monospace; numeric columns right-aligned with tabular figures
 
+### Demo Documentation link (intentional exception)
+The footer's **Demo Documentation** link is deliberately **off brand**: bold, red `#C8102E` (token `--offbrand-red`, 5.35:1 on the light-gray footer, passes AA). It's meant to stand out so the CIO opens the documentation page (product promise, user workflow, provider status, evaluation results). Don't use this red anywhere else, and don't confuse it with the Critical status color `#B42318`.
+
 ---
 
 ## 5. Layout and spacing
@@ -230,7 +233,7 @@ App copy guidelines:
 - Title Case for headings, buttons, and section labels; sentence case for body, explanations, and recommendations.
 - Plain, operational verbs: "Review", "Verify", "Contact dispatch", "Escalate to regional lead".
 - State uncertainty plainly: "ETA unavailable from source", "Notes conflict — verify with driver". This matches the brand's "reliability" promise better than confident guesses.
-- Keep technology names out of the manager workflow; put them in About/Evaluation (brief requirement).
+- Keep technology names out of the manager workflow; put them on the Demo Documentation page (brief requirement).
 - No hiring language in the UI (brief requirement).
 
 ---
@@ -306,4 +309,5 @@ h1, h2, h3, h4 { font-weight: 500; letter-spacing: var(--track-heading); }
 - [ ] Uppercase eyebrow labels on major sections
 - [ ] Severity colors only on flagged items, always with a text label
 - [ ] No Yzer logo, wordmark, photography, or "official" implication; prototype label visible
+- [ ] Off-brand red used only for the footer Demo Documentation link
 - [ ] Title Case headings; plain, honest operational copy

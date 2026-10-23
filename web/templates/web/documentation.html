@@ -1,13 +1,53 @@
 {% extends "base.html" %}
-{% block title %}About &amp; Evaluation · Transportation Operations Wingman{% endblock %}
+{% block title %}Demo Documentation · Transportation Operations Wingman{% endblock %}
 {% block content %}
 <div class="page-head">
   <div>
     <p class="eyebrow">About This Prototype</p>
-    <h1>About &amp; Evaluation</h1>
-    <p class="muted">How the prototype works, what it connects to, and how well it performs on the evaluation set.</p>
+    <h1>Demo Documentation</h1>
+    <p class="muted">What the prototype promises, how a manager uses it, what it connects to, and how well it performs on the evaluation set.</p>
   </div>
 </div>
+
+<section class="promise on-navy">
+  <p class="eyebrow">Product Promise</p>
+  <blockquote class="promise__quote">
+    See which deliveries need attention, understand the evidence, and prepare the next action without searching several systems.
+  </blockquote>
+  <p class="promise__user"><strong>Primary user:</strong> a regional operations manager.</p>
+</section>
+
+<section class="card">
+  <p class="eyebrow">User Workflow</p>
+  <h2>Three Workflows, One Screen</h2>
+  <p class="muted">Today a manager reconciles a shipment export, dispatch notes, and a procedure folder to know what needs attention. The prototype brings those sources together on the Exceptions screen.</p>
+  <ol class="workflow">
+    <li class="workflow__step">
+      <span class="workflow__num">1</span>
+      <div>
+        <h3>Find Exceptions</h3>
+        <p>Choose a customer and region. The queue lists flagged shipments, highest severity first, with the rule, threshold, and age behind each flag.</p>
+        <p class="caption">Counts and deadlines come from deterministic rules evaluated at the fixed demo timestamp, not from the AI.</p>
+      </div>
+    </li>
+    <li class="workflow__step">
+      <span class="workflow__num">2</span>
+      <div>
+        <h3>Explain a Shipment</h3>
+        <p>Open a shipment to see its facts, event timeline, dispatch notes, and the matching customer procedure. Request an explanation that cites those sources and proposes a next action and responsible role for review.</p>
+        <p class="caption">Unknown or conflicting information is shown as such and flagged for verification.</p>
+      </div>
+    </li>
+    <li class="workflow__step">
+      <span class="workflow__num">3</span>
+      <div>
+        <h3>Create a Manager Briefing</h3>
+        <p>Generate a summary of the current filtered queue with counts, proposed actions, and links back to the source records.</p>
+        <p class="caption">Recommendations are never sent or acted on automatically.</p>
+      </div>
+    </li>
+  </ol>
+</section>
 
 <div class="grid-2">
   <section class="card">

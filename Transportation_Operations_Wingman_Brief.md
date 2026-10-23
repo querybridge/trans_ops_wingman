@@ -153,7 +153,7 @@ Main screen:
 - Shipment detail panel with event timeline, facts, notes, explanation, and source excerpts.
 - Generate Briefing button with loading, error, and retry states.
 
-Provide suggested actions as reviewable recommendations. Avoid technology names and hiring claims in the manager workflow. Put architecture, dependency versions, limitations, and evaluation details in an About/Evaluation area.
+Provide suggested actions as reviewable recommendations. Avoid technology names and hiring claims in the manager workflow. Put the product promise, user workflow, architecture, dependency versions, limitations, and evaluation details on a Demo Documentation page linked from the footer. That link is intentionally off brand (bold red) so the CIO notices and reviews it.
 
 ## Evaluation and tests
 

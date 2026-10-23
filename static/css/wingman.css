@@ -17,6 +17,9 @@
   --ok:       #027A48;  --ok-bg:       #ECFDF3;
   --info:     #045493;  --info-bg:     #EEF4FA;
 
+  /* Deliberately off-brand: only for the Demo Documentation footer link */
+  --offbrand-red: #C8102E;
+
   --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --track-heading: -0.03em;
@@ -262,3 +265,25 @@ strong { font-weight: 700; }
 /* Keep references and durations on one line */
 .id, .num-col { white-space: nowrap; }
 .id-heading .id { font-size: 20px; font-weight: 500; color: var(--brand-navy); }
+
+/* Footer and the intentionally off-brand Demo Documentation link */
+.footer__inner { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 24px; }
+.doc-link { color: var(--offbrand-red); font-weight: 700; font-size: 14px; }
+.doc-link:hover { color: var(--offbrand-red); text-decoration-thickness: 2px; }
+
+/* Demo Documentation page */
+.promise { background: var(--brand-navy); color: var(--white); border-radius: var(--radius-card); padding: 28px 24px; margin-bottom: 24px; }
+.promise__quote {
+  margin: 4px 0 12px; padding-left: 16px; border-left: 3px solid var(--brand-sky);
+  font-size: 22px; font-weight: 500; line-height: 1.35; letter-spacing: -0.02em; max-width: 860px;
+}
+.promise__user { color: #D5DEE7; margin: 0; font-size: 14px; }
+.workflow { list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 16px; grid-template-columns: 1fr; }
+@media (min-width: 900px) { .workflow { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.workflow__step { display: flex; gap: 14px; background: var(--gray-50); border-radius: var(--radius-card); padding: 16px; }
+.workflow__step p { font-size: 14px; }
+.workflow__num {
+  flex: none; display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--brand-blue); color: var(--white); font-weight: 700;
+}

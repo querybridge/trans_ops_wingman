@@ -60,9 +60,9 @@ def generate_briefing(request):
 
 
 @require_GET
-def about(request):
+def documentation(request):
     return render(
         request,
-        "web/about.html",
+        "web/documentation.html",
         {"providers": provider_status(), "evaluation_runs": EvaluationRun.objects.all()[:10]},
     )

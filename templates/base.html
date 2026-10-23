@@ -23,9 +23,8 @@
       </div>
       {% if user.is_authenticated %}
       <nav class="appbar__nav" aria-label="Main">
-        {% url 'web:dashboard' as dashboard_url %}{% url 'web:about' as about_url %}
+        {% url 'web:dashboard' as dashboard_url %}
         <a href="{{ dashboard_url }}" {% if request.path == dashboard_url %}aria-current="page"{% endif %}>Exceptions</a>
-        <a href="{{ about_url }}" {% if request.path == about_url %}aria-current="page"{% endif %}>About &amp; Evaluation</a>
         <form method="post" action="{% url 'logout' %}" class="appbar__logout">
           {% csrf_token %}
           <span class="appbar__user">{{ user.get_username }}</span>
@@ -41,8 +40,12 @@
   </main>
 
   <footer class="footer">
-    <div class="container">
-      Independent prototype using fictional data. Not an official product and not connected to any company system.
+    <div class="container footer__inner">
+      <span>Independent prototype using fictional data. Not an official product and not connected to any company system.</span>
+      {% if user.is_authenticated %}
+      {# Intentionally off-brand red so reviewers notice it; see BRAND_GUIDE.md §4 "Demo Documentation link". #}
+      <a class="doc-link" href="{% url 'web:documentation' %}">Demo Documentation</a>
+      {% endif %}
     </div>
   </footer>
 </body>

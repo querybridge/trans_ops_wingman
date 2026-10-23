@@ -49,6 +49,13 @@ class ViewTests(TestCase):
         self.assertContains(response, "Prototype - Synthetic data - For Demo Only")
         self.assertContains(response, "Exception Rules Not Connected Yet")
 
+    def test_documentation_link_is_in_footer_not_header(self):
+        html = self.client.get(reverse("web:dashboard")).content.decode()
+        header, footer = html.split("</header>")[0], html.split('<footer class="footer">')[1]
+        self.assertNotIn("Demo Documentation", header)
+        self.assertIn('class="doc-link"', footer)
+        self.assertIn(reverse("web:documentation"), footer)
+
     def test_htmx_filter_returns_partial(self):
         response = self.client.get(reverse("web:dashboard"), {"customer": "ACME"}, HTTP_HX_REQUEST="true")
         self.assertNotContains(response, "<html")
@@ -75,7 +82,11 @@ class ViewTests(TestCase):
         codes = [self.client.post(url).status_code for _ in range(3)]
         self.assertEqual(codes, [200, 200, 429])
 
-    def test_about_shows_provider_status(self):
-        response = self.client.get(reverse("web:about"))
+    def test_documentation_shows_promise_workflow_and_provider_status(self):
+        response = self.client.get(reverse("web:documentation"))
+        self.assertContains(response, "See which deliveries need attention")
+        self.assertContains(response, "Find Exceptions")
+        self.assertContains(response, "Explain a Shipment")
+        self.assertContains(response, "Create a Manager Briefing")
         self.assertContains(response, "Not configured")
         self.assertContains(response, "No Evaluation Runs Yet")
