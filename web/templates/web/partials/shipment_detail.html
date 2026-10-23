@@ -1,7 +1,7 @@
 <div class="detail-head">
   <div>
     <p class="eyebrow">Shipment Detail</p>
-    <h2 class="id-heading"><span class="id">{{ shipment.shipment_id }}</span></h2>
+    <h2 class="id-heading" id="{{ shipment.shipment_id }}"><span class="id">{{ shipment.shipment_id }}</span></h2>
     <p class="muted">{{ shipment.customer.name }} · {{ shipment.get_region_display }} · {{ shipment.service_type }}</p>
   </div>
   <span class="badge badge--info">{{ shipment.get_status_display }}</span>
@@ -11,7 +11,7 @@
 {% if flags %}
 <ul class="flags">
   {% for f in flags %}
-  <li class="flag">
+  <li class="flag" id="FLAG-{{ f.shipment_id }}-{{ f.rule }}">
     <span class="badge badge--{{ f.severity }}">{{ f.severity|capfirst }}</span>
     <div>
       <strong>{{ f.rule_label }}</strong> · <span class="num">{{ f.age_display }}</span>
@@ -67,7 +67,34 @@
 {% endif %}
 
 <h3 class="section-title">Applicable Procedures</h3>
-<p class="muted">Procedure retrieval isn't connected yet. Matching customer SOP excerpts will appear here with document, version, and section references.</p>
+{% if not procedure_groups %}
+<p class="muted">No exception flags, so no procedures apply.</p>
+{% endif %}
+{% for group in procedure_groups %}
+<div class="procedure-group">
+  {% if group.match == "none" %}
+  <div class="callout callout--warning">
+    <strong>No {{ group.label }} procedure on file</strong> for {{ shipment.customer.name }}. Another customer's procedure is not substituted; confirm handling with the regional operations manager.
+  </div>
+  {% else %}
+  {% for doc in group.documents %}
+  <details class="procedure" {% if forloop.first and group.issue_type != "escalation" %}open{% endif %}>
+    <summary>
+      <span class="id ref">{{ doc.document_id }} {{ doc.version }}</span>
+      <strong>{{ doc.title }}</strong>
+      <span class="caption">· {{ doc.scope_label }} · effective {{ doc.effective_from|date:"M j, Y" }}</span>
+    </summary>
+    {% for chunk in doc.chunks.all %}
+    <div id="{{ chunk.chunk_id }}" class="procedure__section">
+      <div class="note__meta">{{ chunk.section }} <span class="id ref">{{ chunk.chunk_id }}</span></div>
+      <p>{{ chunk.text }}</p>
+    </div>
+    {% endfor %}
+  </details>
+  {% endfor %}
+  {% endif %}
+</div>
+{% endfor %}
 
 <h3 class="section-title">Explanation</h3>
 <form hx-post="{% url 'web:explain_shipment' shipment.shipment_id %}" hx-target="#explain-result"

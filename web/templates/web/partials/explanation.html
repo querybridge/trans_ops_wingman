@@ -1,0 +1,32 @@
+<div class="ai-output">
+  <div class="ai-output__head">
+    <span class="badge badge--info">AI-generated · for review</span>
+    {% if x.requires_review %}<span class="badge badge--warning">Needs verification</span>{% endif %}
+  </div>
+  <p class="ai-output__summary">{{ x.summary }}</p>
+
+  <h4 class="ai-label">Observed facts</h4>
+  <ul class="cited">
+    {% for fact in x.observed_facts %}
+    <li>{{ fact.text }}{% for ref in fact.evidence_ids %} <a class="id ref" href="#{{ ref }}">{{ ref }}</a>{% endfor %}</li>
+    {% endfor %}
+  </ul>
+
+  {% if x.conflicts %}
+  <h4 class="ai-label">Conflicting evidence</h4>
+  {% for c in x.conflicts %}
+  <div class="callout callout--warning">{{ c.description }}{% for ref in c.evidence_ids %} <a class="id ref" href="#{{ ref }}">{{ ref }}</a>{% endfor %}</div>
+  {% endfor %}
+  {% endif %}
+
+  <h4 class="ai-label">Suggested next action</h4>
+  <p>{{ x.recommended_next_action.text }}{% for ref in x.recommended_next_action.evidence_ids %} <a class="id ref" href="#{{ ref }}">{{ ref }}</a>{% endfor %}</p>
+  <p><strong>Proposed owner:</strong> {{ x.proposed_responsible_role }}</p>
+
+  {% if x.missing_information %}
+  <h4 class="ai-label">Missing information</h4>
+  <ul class="cited">{% for item in x.missing_information %}<li>{{ item }}</li>{% endfor %}</ul>
+  {% endif %}
+
+  <p class="caption">Model {{ result.model }} · prompt {{ result.prompt_version }} · {{ result.latency_ms }} ms{% if result.attempts > 1 %} · repaired after an invalid first response{% endif %}. Citations were checked against the evidence shown; review before acting.</p>
+</div>

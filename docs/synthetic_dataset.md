@@ -18,7 +18,8 @@ Built by `ingestion/seed.py` with random seed `20261021`, relative to the demo t
 | Prompt-injection text in a dispatch note | SHP-00046 (Jacksonville): NOTE-00046-2 |
 | One shipment, two flags | SHP-00023 (Orlando): missing scan and missed window |
 | Unknown shipment | SHP-99999 (doesn't exist) |
-| Customer procedure mismatch | Coastal Kitchen Supply has no failed-attempt SOP (defined when SOPs are written) |
+| Customer procedure mismatch | SHP-00046: Coastal Kitchen Supply has no failed-attempt SOP; Harborview's SOP-FA-HHG must not be used |
+| Superseded procedure | SOP-MW v1 (ended 2026-06-30) vs v2 (current) |
 
 **Demo focus:** filtering to Tampa shows 4 exception shipments (SHP-00007, SHP-00031, SHP-00052, SHP-00078), including the unavailable-ETA and contradictory-notes scenarios.
 

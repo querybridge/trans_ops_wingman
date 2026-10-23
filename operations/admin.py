@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Customer, DispatchNote, Shipment, ShipmentEvent
+from .models import Customer, DispatchNote, ProcedureChunk, ProcedureDocument, Shipment, ShipmentEvent
 
 
 class ShipmentEventInline(admin.TabularInline):
@@ -37,3 +37,15 @@ class ShipmentEventAdmin(admin.ModelAdmin):
 class DispatchNoteAdmin(admin.ModelAdmin):
     list_display = ["note_id", "shipment", "author_role", "noted_at"]
     search_fields = ["note_id", "shipment__shipment_id", "text"]
+
+
+class ProcedureChunkInline(admin.TabularInline):
+    model = ProcedureChunk
+    extra = 0
+
+
+@admin.register(ProcedureDocument)
+class ProcedureDocumentAdmin(admin.ModelAdmin):
+    list_display = ["document_id", "version", "title", "customer", "issue_type", "effective_from", "effective_to"]
+    list_filter = ["issue_type", "customer"]
+    inlines = [ProcedureChunkInline]

@@ -47,3 +47,63 @@ def dashboard_metrics(customer_id, region, as_of, exceptions=None):
         "missed_windows": sum(1 for e in exceptions if e.rule == "missed_window"),
         "missing_pod": sum(1 for e in exceptions if e.rule == "missing_pod"),
     }
+
+
+ISSUE_FOR_RULE = {
+    "missed_window": "missed_window",
+    "missing_scan": "missing_scan",
+    "failed_attempt": "failed_attempt",
+    "missing_pod": "missing_pod",
+}
+
+
+def retrieve_procedures(customer_id, issue_type, region, as_of):
+    """Procedures in effect on the demo date for this customer and issue.
+
+    Customer-specific documents take precedence; otherwise shared-scope
+    documents apply. Another customer's procedure is never returned.
+    Returns (documents_with_chunks, match) where match is "customer",
+    "shared", or "none".
+    """
+    from django.db.models import Q
+
+    from .models import ProcedureDocument
+
+    day = as_of.date()
+    docs = (
+        ProcedureDocument.objects.filter(issue_type=issue_type, effective_from__lte=day)
+        .filter(Q(effective_to__isnull=True) | Q(effective_to__gte=day))
+        .filter(Q(region="") | Q(region=region or ""))
+        .select_related("customer")
+        .prefetch_related("chunks")
+    )
+    specific = [d for d in docs if d.customer_id and d.customer.customer_id == customer_id]
+    if specific:
+        chosen, match = specific, "customer"
+    else:
+        chosen, match = [d for d in docs if d.customer_id is None], "shared"
+    latest = {}
+    for doc in sorted(chosen, key=lambda d: d.effective_from):
+        latest[doc.document_id] = doc  # newest effective version per document wins
+    result = sorted(latest.values(), key=lambda d: d.document_id)
+    return result, (match if result else "none")
+
+
+def procedures_for_flags(shipment, flags, as_of):
+    """Procedure sections relevant to a shipment's flags, plus escalation ownership."""
+    customer_id, region = shipment.customer.customer_id, shipment.region
+    groups = []
+    issues = []
+    for f in flags:
+        issue = ISSUE_FOR_RULE[f.rule]
+        if issue not in issues:
+            issues.append(issue)
+    if flags:
+        issues.append("escalation")
+    for issue in issues:
+        from .models import ProcedureDocument
+
+        docs, match = retrieve_procedures(customer_id, issue, region, as_of)
+        label = ProcedureDocument.IssueType(issue).label.lower()
+        groups.append({"issue_type": issue, "label": label, "documents": docs, "match": match})
+    return groups

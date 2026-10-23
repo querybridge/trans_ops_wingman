@@ -103,3 +103,49 @@ class DispatchNote(models.Model):
 
     def __str__(self):
         return self.note_id
+
+
+class ProcedureDocument(models.Model):
+    """One version of a standard operating procedure. customer=None means shared scope."""
+
+    class IssueType(models.TextChoices):
+        MISSED_WINDOW = "missed_window", "Missed delivery window"
+        FAILED_ATTEMPT = "failed_attempt", "Failed delivery attempt"
+        MISSING_SCAN = "missing_scan", "Missing scan"
+        MISSING_POD = "missing_pod", "Proof of delivery"
+        ESCALATION = "escalation", "Escalation ownership"
+
+    document_id = models.CharField(max_length=32)
+    version = models.CharField(max_length=16)
+    title = models.CharField(max_length=200)
+    customer = models.ForeignKey(Customer, null=True, blank=True, on_delete=models.CASCADE, related_name="procedures")
+    issue_type = models.CharField(max_length=24, choices=IssueType.choices)
+    region = models.CharField(max_length=16, choices=Region.choices, blank=True)
+    effective_from = models.DateField()
+    effective_to = models.DateField(null=True, blank=True)
+    source_path = models.CharField(max_length=255)
+
+    class Meta:
+        ordering = ["document_id", "version"]
+        constraints = [models.UniqueConstraint(fields=["document_id", "version"], name="unique_procedure_version")]
+
+    @property
+    def scope_label(self):
+        return self.customer.name if self.customer_id else "All customers"
+
+    def __str__(self):
+        return f"{self.document_id} {self.version}"
+
+
+class ProcedureChunk(models.Model):
+    chunk_id = models.CharField(max_length=80, unique=True)
+    document = models.ForeignKey(ProcedureDocument, on_delete=models.CASCADE, related_name="chunks")
+    ordinal = models.PositiveSmallIntegerField()
+    section = models.CharField(max_length=200)
+    text = models.TextField()
+
+    class Meta:
+        ordering = ["document", "ordinal"]
+
+    def __str__(self):
+        return self.chunk_id

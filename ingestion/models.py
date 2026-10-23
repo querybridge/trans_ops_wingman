@@ -7,6 +7,7 @@ class IngestionRecord(models.Model):
     class Kind(models.TextChoices):
         SHIPMENT_CSV = "shipment_csv", "Shipment CSV import"
         SEED = "seed", "Synthetic seed"
+        PROCEDURES = "procedures", "Procedure documents"
         VECTOR_INGEST = "vector_ingest", "Vector ingest"
 
     kind = models.CharField(max_length=24, choices=Kind.choices)

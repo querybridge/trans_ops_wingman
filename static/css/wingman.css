@@ -293,3 +293,19 @@ strong { font-weight: 700; }
 .flag { display: flex; gap: 12px; align-items: flex-start; font-size: 14px; }
 .flag .badge { margin-top: 2px; }
 .facts .id { white-space: normal; overflow-wrap: anywhere; }
+
+/* Procedures */
+.procedure-group { display: grid; gap: 8px; margin-bottom: 8px; }
+.procedure { border: 1px solid var(--gray-200); border-radius: var(--radius-card); padding: 10px 12px; font-size: 14px; }
+.procedure summary { cursor: pointer; display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: baseline; }
+.procedure summary .ref { margin-left: 0; }
+.procedure__section { margin-top: 10px; }
+.procedure__section p { margin: 0; }
+
+/* AI output */
+.ai-output { border: 1px solid var(--gray-200); border-radius: var(--radius-card); padding: 14px 16px; margin-top: 12px; font-size: 14px; background: var(--white); color: var(--ink); }
+.ai-output__head { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 8px; }
+.ai-output__summary { font-size: 15px; font-weight: 500; }
+.ai-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: var(--track-eyebrow); color: var(--slate-strong); margin: 12px 0 6px; }
+.cited { margin: 0; padding-left: 18px; }
+.cited li { margin-bottom: 4px; }
