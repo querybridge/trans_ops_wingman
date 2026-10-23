@@ -1,0 +1,49 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Transportation Operations Wingman{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/wingman.css' %}">
+  <script src="{% static 'js/htmx.min.js' %}" defer></script>
+</head>
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+  <header class="appbar on-navy">
+    <div class="container appbar__inner">
+      <a class="appbar__title" href="{% url 'web:dashboard' %}">Transportation Operations Wingman</a>
+      <div class="appbar__meta">
+        <span class="prototype-label">Prototype - Synthetic data - For Demo Only</span>
+        <span class="demo-clock" title="Fixed demo timestamp; rules never use the real clock">
+          <span class="eyebrow">Data as of</span>
+          <time class="num" datetime="{{ demo_as_of|date:'c' }}">{{ demo_as_of|date:"M j, Y · g:i A T" }}</time>
+        </span>
+      </div>
+      {% if user.is_authenticated %}
+      <nav class="appbar__nav" aria-label="Main">
+        {% url 'web:dashboard' as dashboard_url %}{% url 'web:about' as about_url %}
+        <a href="{{ dashboard_url }}" {% if request.path == dashboard_url %}aria-current="page"{% endif %}>Exceptions</a>
+        <a href="{{ about_url }}" {% if request.path == about_url %}aria-current="page"{% endif %}>About &amp; Evaluation</a>
+        <form method="post" action="{% url 'logout' %}" class="appbar__logout">
+          {% csrf_token %}
+          <span class="appbar__user">{{ user.get_username }}</span>
+          <button type="submit" class="btn btn-outline-light btn-sm">Sign Out</button>
+        </form>
+      </nav>
+      {% endif %}
+    </div>
+  </header>
+
+  <main class="container main" id="main">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      Independent prototype using fictional data. Not an official product and not connected to any company system.
+    </div>
+  </footer>
+</body>
+</html>

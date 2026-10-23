@@ -1,0 +1,26 @@
+{% if state == "unconfigured" %}
+<div class="callout callout--info" role="status">
+  <strong>AI explanation unavailable.</strong>
+  One or more providers (vector retrieval, embeddings, language model) aren't configured, so no generated text is shown. The facts and evidence above remain authoritative. See About &amp; Evaluation for status.
+</div>
+{% elif state == "not_implemented" %}
+<div class="callout callout--info" role="status">
+  <strong>AI explanation not connected yet.</strong>
+  Providers are configured, but the explanation workflow hasn't been built. No generated text is shown.
+</div>
+{% elif state == "rate_limited" %}
+<div class="callout callout--warning" role="status">
+  <strong>Too many requests.</strong>
+  AI requests are limited per user. Try again in about {{ window_minutes }} minutes.
+</div>
+{% elif state == "error" %}
+<div class="callout callout--critical" role="alert">
+  <strong>The AI service didn't respond.</strong>
+  {{ message|default:"The request timed out or returned an invalid response." }} The evidence above is still accurate.
+  {% if retry_url %}
+  <form hx-post="{{ retry_url }}" hx-target="closest .ai-result" hx-disabled-elt="find button" class="callout__action">
+    <button type="submit" class="btn btn-quiet btn-sm">Retry</button>
+  </form>
+  {% endif %}
+</div>
+{% endif %}

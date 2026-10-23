@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}About &amp; Evaluation · Transportation Operations Wingman{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <p class="eyebrow">About This Prototype</p>
+    <h1>About &amp; Evaluation</h1>
+    <p class="muted">How the prototype works, what it connects to, and how well it performs on the evaluation set.</p>
+  </div>
+</div>
+
+<div class="grid-2">
+  <section class="card">
+    <p class="eyebrow">Scope</p>
+    <h2>What It Does</h2>
+    <ul class="list">
+      <li>Flags shipments with deterministic, documented rules evaluated at a fixed demo timestamp.</li>
+      <li>Shows the shipment facts, event timeline, dispatch notes, and matching procedures in one place.</li>
+      <li>Generates explanations and briefings that cite only the evidence shown, and states unknowns plainly.</li>
+    </ul>
+    <h3 class="section-title">Limitations</h3>
+    <ul class="list">
+      <li>Synthetic data only; no real transportation management system is connected.</li>
+      <li>No predictive ETAs; ETAs are shown only when a source provides them.</li>
+      <li>No operational actions or automated communication; recommendations are for review.</li>
+      <li>Not production ready.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <p class="eyebrow">Integrations</p>
+    <h2>Provider Status</h2>
+    <table class="table table--compact">
+      <thead><tr><th scope="col">Service</th><th scope="col">Status</th></tr></thead>
+      <tbody>
+        {% for p in providers %}
+        <tr>
+          <td>{{ p.name }}<div class="caption">{{ p.detail }}</div></td>
+          <td>{% if p.configured %}<span class="badge badge--ok">Configured</span>{% else %}<span class="badge badge--warning">Not configured</span>{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p class="caption">Configured means credentials are present. It doesn't confirm the service responds.</p>
+  </section>
+</div>
+
+<section class="card">
+  <p class="eyebrow">Evaluation</p>
+  <h2>Evaluation Runs</h2>
+  {% if evaluation_runs %}
+  <div class="table-scroll">
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Run</th><th scope="col">Dataset</th><th scope="col">Prompt</th>
+          <th scope="col">Model</th><th scope="col">Embeddings</th><th scope="col">Mode</th>
+          <th scope="col" class="num-col">Passed</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for run in evaluation_runs %}
+        <tr>
+          <td class="num">{{ run.run_at|date:"M j, Y g:i A" }}</td>
+          <td>{{ run.dataset_version }}</td>
+          <td>{{ run.prompt_version }}</td>
+          <td><span class="id">{{ run.llm_model|default:"—" }}</span></td>
+          <td><span class="id">{{ run.embedding_model|default:"—" }}</span></td>
+          <td>{% if run.live_providers %}<span class="badge badge--info">Live</span>{% else %}<span class="badge badge--neutral">Offline fixtures</span>{% endif %}</td>
+          <td class="num-col num">{{ run.cases_passed }} / {{ run.cases_total }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <h3>No Evaluation Runs Yet</h3>
+    <p class="muted">Results appear here after the 20-case evaluation is run. Nothing is shown until real results exist.</p>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Sign In · Transportation Operations Wingman{% endblock %}
+{% block content %}
+<section class="auth">
+  <div class="card auth__card">
+    <p class="eyebrow">Demo Access</p>
+    <h1>Sign In</h1>
+    <p class="muted">Use the demo account you were given.</p>
+    {% if form.non_field_errors %}
+      <div class="callout callout--critical" role="alert">Your username and password didn't match. Try again.</div>
+    {% endif %}
+    <form method="post" class="stack">
+      {% csrf_token %}
+      <label class="field">
+        <span class="field__label">Username</span>
+        {{ form.username }}
+      </label>
+      <label class="field">
+        <span class="field__label">Password</span>
+        {{ form.password }}
+      </label>
+      <input type="hidden" name="next" value="{{ next }}">
+      <button type="submit" class="btn btn-primary">Sign In</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

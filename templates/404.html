@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Not Found · Transportation Operations Wingman{% endblock %}
+{% block content %}
+<section class="card empty-page">
+  <p class="eyebrow">Not Found</p>
+  <h1>We Couldn't Find That</h1>
+  <p class="muted">The shipment or page doesn't exist, or it's outside the selected customer scope.</p>
+  <a class="btn btn-primary" href="{% url 'web:dashboard' %}">Back to Exceptions</a>
+</section>
+{% endblock %}

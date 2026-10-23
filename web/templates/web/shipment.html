@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block title %}{{ shipment.shipment_id }} · Transportation Operations Wingman{% endblock %}
+{% block content %}
+<p><a class="btn btn-quiet btn-sm" href="{% url 'web:dashboard' %}">← Back to Exceptions</a></p>
+<section id="detail" class="card detail-panel detail-panel--page">
+  {% include "web/partials/shipment_detail.html" %}
+</section>
+{% endblock %}

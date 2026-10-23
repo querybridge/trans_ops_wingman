@@ -154,7 +154,7 @@ The site has no status colors suitable for an operations dashboard. These are ch
 | Critical | `#B42318` | `#FEF3F2` | 6.05 | Missed window past threshold, failed attempt |
 | Warning | `#B54708` | `#FFFAEB` | 5.20 | Missing scan, POD within grace issues |
 | Resolved / OK | `#027A48` | `#ECFDF3` | 5.13 | Clean, delivered with POD |
-| Info / Unknown | `#045493` (Blue) | `#F4F4F4` | 7.79 vs white | Unknown ETA, needs verification, conflicting evidence |
+| Info / Unknown | `#045493` (Blue) | `#EEF4FA` | 7.2 | Unknown ETA, needs verification, conflicting evidence |
 
 - Always pair color with a text label ("Critical", "Warning"); never rely on color alone.
 - Severity labels are rule-based. Never style them like probabilities or scores (brief requirement).
@@ -255,7 +255,7 @@ App copy guidelines:
   --critical: #B42318;  --critical-bg: #FEF3F2;
   --warning:  #B54708;  --warning-bg:  #FFFAEB;
   --ok:       #027A48;  --ok-bg:       #ECFDF3;
-  --info:     #045493;  --info-bg:     #F4F4F4;
+  --info:     #045493;  --info-bg:     #EEF4FA;
 
   /* Type */
   --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;

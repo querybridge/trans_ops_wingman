@@ -1,0 +1,61 @@
+<div class="detail-head">
+  <div>
+    <p class="eyebrow">Shipment Detail</p>
+    <h2 class="id-heading"><span class="id">{{ shipment.shipment_id }}</span></h2>
+    <p class="muted">{{ shipment.customer.name }} · {{ shipment.get_region_display }} · {{ shipment.service_type }}</p>
+  </div>
+  <span class="badge badge--info">{{ shipment.get_status_display }}</span>
+</div>
+
+<h3 class="section-title">Facts</h3>
+<dl class="facts">
+  <div><dt>Delivery window</dt><dd class="num">{{ shipment.delivery_window_start|date:"M j, g:i A" }} – {{ shipment.delivery_window_end|date:"g:i A T" }}</dd></div>
+  <div><dt>Latest event</dt><dd class="num">{{ shipment.latest_event_at|date:"M j, g:i A T"|default:"No events recorded" }}</dd></div>
+  <div><dt>Delivered</dt><dd class="num">{{ shipment.delivered_at|date:"M j, g:i A T"|default:"Not delivered" }}</dd></div>
+  <div><dt>ETA</dt><dd class="num">{% if shipment.eta %}{{ shipment.eta|date:"M j, g:i A T" }}{% else %}<span class="unknown">Unavailable from source</span>{% endif %}</dd></div>
+  <div><dt>Responsible role</dt><dd>{{ shipment.assigned_role|default:"Not assigned" }}</dd></div>
+  <div><dt>Source</dt><dd><span class="id">{{ shipment.source_system }} / {{ shipment.source_record_id }}</span></dd></div>
+</dl>
+
+<h3 class="section-title">Event Timeline</h3>
+{% if shipment.events.all %}
+<ol class="timeline">
+  {% for ev in shipment.events.all %}
+  <li id="{{ ev.event_id }}" class="timeline__item">
+    <time class="num">{{ ev.occurred_at|date:"M j, g:i A" }}</time>
+    <div>
+      <strong>{{ ev.get_event_type_display }}</strong>{% if ev.detail %} — {{ ev.detail }}{% endif %}
+      <span class="id ref">{{ ev.event_id }}</span>
+    </div>
+  </li>
+  {% endfor %}
+</ol>
+{% else %}
+<p class="muted">No events recorded for this shipment.</p>
+{% endif %}
+
+<h3 class="section-title">Dispatch Notes</h3>
+{% if shipment.notes.all %}
+<ul class="notes">
+  {% for note in shipment.notes.all %}
+  <li id="{{ note.note_id }}" class="note">
+    <div class="note__meta"><span class="id ref">{{ note.note_id }}</span> · {{ note.author_role }} · <time class="num">{{ note.noted_at|date:"M j, g:i A" }}</time></div>
+    <p>{{ note.text }}</p>
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p class="muted">No dispatch notes for this shipment.</p>
+{% endif %}
+
+<h3 class="section-title">Applicable Procedures</h3>
+<p class="muted">Procedure retrieval isn't connected yet. Matching customer SOP excerpts will appear here with document, version, and section references.</p>
+
+<h3 class="section-title">Explanation</h3>
+<form hx-post="{% url 'web:explain_shipment' shipment.shipment_id %}" hx-target="#explain-result"
+      hx-indicator="#explain-loading" hx-disabled-elt="find button">
+  <input type="hidden" name="customer" value="{{ customer_scope }}">
+  <button type="submit" class="btn btn-primary btn-sm">Explain Shipment</button>
+  <span id="explain-loading" class="htmx-indicator loading-text" role="status">Reviewing evidence…</span>
+</form>
+<div id="explain-result" class="ai-result"></div>

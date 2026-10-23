@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <p class="eyebrow">Regional Operations</p>
+    <h1>Exception Queue</h1>
+    <p class="muted">Deliveries that need attention, with the evidence behind each flag.</p>
+  </div>
+</div>
+
+<form class="filter-bar" method="get" action="{% url 'web:dashboard' %}"
+      hx-get="{% url 'web:dashboard' %}" hx-target="#queue" hx-push-url="true"
+      hx-trigger="change, submit" hx-indicator="#queue-loading">
+  <label class="field field--inline">
+    <span class="field__label">Customer</span>
+    {{ form.customer }}
+  </label>
+  <label class="field field--inline">
+    <span class="field__label">Region</span>
+    {{ form.region }}
+  </label>
+  <noscript><button type="submit" class="btn btn-primary btn-sm">Apply</button></noscript>
+  <span id="queue-loading" class="htmx-indicator loading-text" role="status">Updating…</span>
+</form>
+
+<div class="workspace">
+  <section id="queue" class="workspace__main" aria-live="polite">
+    {% include "web/partials/exception_queue.html" %}
+  </section>
+
+  <aside class="workspace__side">
+    <section id="detail" class="card detail-panel">
+      <p class="eyebrow">Shipment Detail</p>
+      <p class="muted">Select a shipment to see its timeline, dispatch notes, matching procedures, and an evidence-backed explanation.</p>
+    </section>
+  </aside>
+</div>
+
+<section class="briefing on-navy">
+  <div class="briefing__head">
+    <div>
+      <p class="eyebrow">Manager Briefing</p>
+      <h2>Summarize the Current Queue</h2>
+      <p>Counts come from the deterministic rules; the narrative cites the same evidence shown above.</p>
+    </div>
+    <form hx-post="{% url 'web:generate_briefing' %}" hx-target="#briefing-result"
+          hx-indicator="#briefing-loading" hx-disabled-elt="find button" hx-include=".filter-bar">
+      <button type="submit" class="btn btn-light">Generate Briefing</button>
+    </form>
+  </div>
+  <div id="briefing-loading" class="htmx-indicator loading-text" role="status">Preparing briefing…</div>
+  <div id="briefing-result" class="briefing__result ai-result"></div>
+</section>
+{% endblock %}

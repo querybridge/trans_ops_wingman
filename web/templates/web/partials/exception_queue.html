@@ -1,0 +1,67 @@
+<div class="metrics" role="list">
+  <div class="metric" role="listitem">
+    <span class="eyebrow">Shipments</span>
+    <span class="metric__value num">{{ metrics.shipments }}</span>
+  </div>
+  <div class="metric" role="listitem">
+    <span class="eyebrow">Needing Attention</span>
+    <span class="metric__value num">{{ metrics.needing_attention|default_if_none:"—" }}</span>
+  </div>
+  <div class="metric" role="listitem">
+    <span class="eyebrow">Missed Windows</span>
+    <span class="metric__value num">{{ metrics.missed_windows|default_if_none:"—" }}</span>
+  </div>
+  <div class="metric" role="listitem">
+    <span class="eyebrow">Missing POD</span>
+    <span class="metric__value num">{{ metrics.missing_pod|default_if_none:"—" }}</span>
+  </div>
+</div>
+<p class="caption">Shipments needing attention counts shipments; one shipment can carry several exception flags.</p>
+
+<div class="card table-card">
+  {% if exceptions is None %}
+    <div class="empty-state">
+      <h3>Exception Rules Not Connected Yet</h3>
+      <p class="muted">The deterministic rules (missed window, missing scan, failed attempt, missing POD) haven't been implemented. No exceptions are shown rather than placeholder data.</p>
+    </div>
+  {% elif not exceptions %}
+    <div class="empty-state">
+      <h3>No Exceptions in This Scope</h3>
+      <p class="muted">Every shipment for the selected customer and region passes the configured rules as of the demo timestamp.</p>
+    </div>
+  {% else %}
+    <div class="table-scroll">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Shipment</th>
+            <th scope="col">Customer</th>
+            <th scope="col">Issue</th>
+            <th scope="col">Severity</th>
+            <th scope="col">Reason</th>
+            <th scope="col" class="num-col">Age</th>
+            <th scope="col"><span class="visually-hidden">Details</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for e in exceptions %}
+          <tr>
+            <td><span class="id">{{ e.shipment_id }}</span></td>
+            <td>{{ e.customer_name }}</td>
+            <td>{{ e.rule_label }}</td>
+            <td><span class="badge badge--{{ e.severity }}">{{ e.severity|capfirst }}</span></td>
+            <td class="reason">{{ e.reason }}</td>
+            <td class="num-col num">{{ e.age }}</td>
+            <td>
+              <a class="btn btn-quiet btn-sm"
+                 href="{% url 'web:shipment_detail' e.shipment_id %}?customer={{ scope.customer }}"
+                 hx-get="{% url 'web:shipment_detail' e.shipment_id %}?customer={{ scope.customer }}"
+                 hx-target="#detail" hx-swap="innerHTML">Details</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+</div>
