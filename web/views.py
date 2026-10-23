@@ -116,5 +116,6 @@ def documentation(request):
             "providers": provider_status(),
             "rules": rule_definitions(),
             "evaluation_runs": EvaluationRun.objects.all()[:10],
+            "latest_run": EvaluationRun.objects.first(),
         },
     )

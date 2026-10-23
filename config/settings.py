@@ -123,6 +123,19 @@ if not DEBUG:
     CSRF_COOKIE_SECURE = True
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     SECURE_CONTENT_TYPE_NOSNIFF = True
+    # PythonAnywhere's "Force HTTPS" toggle usually handles redirects; these allow doing it in Django too.
+    SECURE_SSL_REDIRECT = env_bool("DJANGO_SECURE_SSL_REDIRECT", False)
+    SECURE_HSTS_SECONDS = int(os.environ.get("DJANGO_SECURE_HSTS_SECONDS", "0"))
+    SESSION_COOKIE_AGE = 60 * 60 * 8  # demo sessions expire after a working day
+
+# Errors go to the console, which PythonAnywhere writes to the web app's error log.
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {"console": {"class": "logging.StreamHandler"}},
+    "root": {"handlers": ["console"], "level": "WARNING"},
+    "loggers": {"django": {"handlers": ["console"], "level": "WARNING", "propagate": False}},
+}
 
 # --- Demo clock -----------------------------------------------------------
 # Exception rules and ages are computed against this fixed timestamp, never the

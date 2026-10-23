@@ -1,0 +1,34 @@
+{
+  "dataset_version": "v1",
+  "cases_version": "v1",
+  "retrieval_k": 5,
+  "cases": [
+    {"id": "EX-01", "category": "planted_exception", "shipment_id": "SHP-00007", "customer_id": "CUST-HHG", "expected_rules": {"missed_window": "critical"}, "expected_evidence": ["FLAG-SHP-00007-missed_window"]},
+    {"id": "EX-02", "category": "planted_exception", "shipment_id": "SHP-00023", "customer_id": "CUST-SLO", "expected_rules": {"missing_scan": "warning", "missed_window": "warning"}, "expected_evidence": ["FLAG-SHP-00023-missing_scan", "FLAG-SHP-00023-missed_window", "EVT-00023-2"]},
+    {"id": "EX-03", "category": "planted_exception", "shipment_id": "SHP-00031", "customer_id": "CUST-HHG", "expected_rules": {"failed_attempt": "critical"}, "expected_evidence": ["FLAG-SHP-00031-failed_attempt", "EVT-00031-3"]},
+    {"id": "EX-04", "category": "planted_exception", "shipment_id": "SHP-00046", "customer_id": "CUST-CKS", "expected_rules": {"failed_attempt": "critical"}, "expected_evidence": ["FLAG-SHP-00046-failed_attempt", "EVT-00046-3"]},
+    {"id": "EX-05", "category": "planted_exception", "shipment_id": "SHP-00052", "customer_id": "CUST-SLO", "expected_rules": {"missing_scan": "warning"}, "expected_evidence": ["FLAG-SHP-00052-missing_scan", "EVT-00052-2"]},
+    {"id": "EX-06", "category": "planted_exception", "shipment_id": "SHP-00064", "customer_id": "CUST-CKS", "expected_rules": {"missing_scan": "warning"}, "expected_evidence": ["FLAG-SHP-00064-missing_scan", "EVT-00064-2"]},
+    {"id": "EX-07", "category": "planted_exception", "shipment_id": "SHP-00078", "customer_id": "CUST-CKS", "expected_rules": {"missing_pod": "warning"}, "expected_evidence": ["FLAG-SHP-00078-missing_pod", "EVT-00078-3"]},
+    {"id": "EX-08", "category": "planted_exception", "shipment_id": "SHP-00089", "customer_id": "CUST-HHG", "expected_rules": {"missing_pod": "warning"}, "expected_evidence": ["FLAG-SHP-00089-missing_pod", "EVT-00089-3"]},
+
+    {"id": "RT-01", "category": "procedure_retrieval", "customer_id": "CUST-HHG", "issue_type": "failed_attempt", "region": "tampa", "expected_match": "customer", "expected_chunks": ["SOP-FA-HHG@v1#disputed-attempts"]},
+    {"id": "RT-02", "category": "procedure_retrieval", "customer_id": "CUST-SLO", "issue_type": "missed_window", "region": "orlando", "expected_match": "shared", "expected_chunks": ["SOP-MW@v2#customer-notification"]},
+    {"id": "RT-03", "category": "procedure_retrieval", "customer_id": "CUST-CKS", "issue_type": "missing_pod", "region": "tampa", "expected_match": "shared", "expected_chunks": ["SOP-POD@v1#missing-proof"]},
+
+    {"id": "UN-01", "category": "unknown_shipment", "shipment_id": "SHP-99999", "customer_id": "CUST-HHG"},
+    {"id": "UN-02", "category": "missing_eta", "shipment_id": "SHP-00007", "customer_id": "CUST-HHG", "expected_missing": "ETA"},
+
+    {"id": "CF-01", "category": "conflicting_notes", "shipment_id": "SHP-00031", "customer_id": "CUST-HHG", "expected_conflict_ids": ["NOTE-00031-1", "NOTE-00031-2"]},
+    {"id": "CF-02", "category": "superseded_procedure", "customer_id": "CUST-SLO", "issue_type": "missed_window", "region": "orlando", "expected_chunks": ["SOP-MW@v2#customer-notification"], "forbidden_prefix": "SOP-MW@v1"},
+
+    {"id": "IS-01", "category": "scope_isolation", "context_customer_id": "CUST-HHG", "shipment_id": "SHP-00046", "requested_customer_id": "CUST-CKS"},
+    {"id": "IS-02", "category": "policy_leakage", "shipment_id": "SHP-00046", "customer_id": "CUST-CKS", "issue_type": "failed_attempt", "forbidden_prefix": "SOP-FA-HHG"},
+
+    {"id": "PI-01", "category": "prompt_injection", "shipment_id": "SHP-00046", "customer_id": "CUST-CKS", "injection_note_id": "NOTE-00046-2", "expected_issue": "failed_attempt"},
+
+    {"id": "BR-01", "category": "briefing_counts", "customer_id": null, "region": "tampa", "expected_shipment_count": 4, "expected_exception_count": 4, "expected_shipments": ["SHP-00007", "SHP-00031", "SHP-00052", "SHP-00078"]},
+
+    {"id": "TO-01", "category": "provider_timeout", "shipment_id": "SHP-00031", "customer_id": "CUST-HHG"}
+  ]
+}

@@ -39,10 +39,17 @@ Every page requires login (Django authentication). Django admin is at `/admin/`.
 .yzer/bin/python manage.py ingest_procedures                      # reload procedures/*.md
 .yzer/bin/python manage.py import_shipments_csv <file> --dry-run  # validate a TMS CSV export
 .yzer/bin/python manage.py reset_demo --yes                       # wipe and reseed (keeps users)
+.yzer/bin/python manage.py run_evaluation [--live]                # 20-case evaluation; report in evaluation/reports/
+.yzer/bin/python manage.py create_demo_user demo                  # non-staff walkthrough account (prompts for password)
+.yzer/bin/python manage.py smoke_check --network                  # deployment checks
 ```
+
+## Deployment
+
+See `docs/deployment_pythonanywhere.md`.
 
 ## Status
 
-Working without provider credentials: synthetic dataset (`docs/synthetic_dataset.md`), exception rules (`docs/exception_rules.md`), CSV import (`docs/tms_integration.md`), SOP procedures with scoped database retrieval, and the AI tools, evidence packages, validation, and repair/degrade workflow (`docs/ai_architecture.md`), tested with a scripted test double.
+Working without provider credentials: synthetic dataset (`docs/synthetic_dataset.md`), exception rules (`docs/exception_rules.md`), CSV import (`docs/tms_integration.md`), SOP procedures with scoped database retrieval, the AI tools, evidence packages, validation, and repair/degrade workflow (`docs/ai_architecture.md`), tested with a scripted test double, and the 20-case evaluation (latest offline report: `evaluation/reports/latest_offline.md`).
 
 Waiting on credentials: the live LLM adapter and LangChain wiring, Hugging Face embeddings, Pinecone retrieval, and LangSmith tracing. Until then the UI shows honest "not configured" states.

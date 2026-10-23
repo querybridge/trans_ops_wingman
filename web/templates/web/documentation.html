@@ -130,6 +130,35 @@
       </tbody>
     </table>
   </div>
+  {% if latest_run %}
+  {% with m=latest_run.metrics %}
+  <h3 class="section-title">Latest Run · {{ latest_run.run_at|date:"M j, Y g:i A" }} · {% if latest_run.live_providers %}live{% else %}offline{% endif %}</h3>
+  <div class="metrics">
+    <div class="metric"><span class="eyebrow">Cases</span><span class="metric__value num">{{ m.cases.pass }}/{{ latest_run.cases_total }}</span><span class="caption">pass · {{ m.cases.partial }} partial · {{ m.cases.fail }} fail</span></div>
+    <div class="metric"><span class="eyebrow">Rule Precision / Recall</span><span class="metric__value num">{{ m.rules.precision }} / {{ m.rules.recall }}</span><span class="caption">{{ m.rules.normal_cohort_false_positives }} false positives in normal cohort</span></div>
+    <div class="metric"><span class="eyebrow">Retrieval Hit @{{ m.retrieval.k }}</span><span class="metric__value num">{{ m.retrieval.hit_rate }}</span><span class="caption">database filter, no embeddings</span></div>
+    <div class="metric"><span class="eyebrow">Isolation Failures</span><span class="metric__value num">{{ m.isolation_failures }}</span><span class="caption">cross-customer checks</span></div>
+  </div>
+  {% if not latest_run.live_providers %}
+  <p class="caption">Partial means the deterministic checks passed and the checks that need a live language model were skipped, not simulated.</p>
+  {% endif %}
+  <div class="table-scroll">
+    <table class="table table--compact">
+      <thead><tr><th scope="col">Case</th><th scope="col">Category</th><th scope="col">Status</th><th scope="col">Checks</th></tr></thead>
+      <tbody>
+        {% for c in latest_run.case_results %}
+        <tr>
+          <td><span class="id">{{ c.id }}</span></td>
+          <td>{{ c.category }}</td>
+          <td>{% if c.status == "pass" %}<span class="badge badge--ok">Pass</span>{% elif c.status == "partial" %}<span class="badge badge--neutral">Partial</span>{% else %}<span class="badge badge--critical">Fail</span>{% endif %}</td>
+          <td class="caption">{% for k in c.checks %}{{ k.name }} ({{ k.status }}){% if not forloop.last %}; {% endif %}{% endfor %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endwith %}
+  {% endif %}
   {% else %}
   <div class="empty-state">
     <h3>No Evaluation Runs Yet</h3>
