@@ -1,0 +1,38 @@
+# Virtual environments
+.yzer/
+.venv/
+venv/
+env/
+
+# Secrets: only the placeholder template is committed
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Django
+*.sqlite3
+*.sqlite3-journal
+db.sqlite3*
+/staticfiles/
+/media/
+*.log
+
+# Evaluation and tracing output that may contain payloads; commit curated reports only
+evaluation/runs/
+traces/
+
+# OS / editors
+.DS_Store
+.idea/
+.vscode/
+*.swp
