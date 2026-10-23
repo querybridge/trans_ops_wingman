@@ -5,7 +5,8 @@ from django.views.decorators.http import require_GET, require_POST
 
 from ai.status import ai_available, provider_status
 from evaluation.models import EvaluationRun
-from operations.services import dashboard_metrics, get_shipment, list_exceptions
+from operations.rules import rule_definitions
+from operations.services import dashboard_metrics, get_shipment, list_exceptions, shipment_flags
 
 from .forms import ExceptionFilterForm
 from .ratelimit import ai_rate_limited
@@ -20,10 +21,11 @@ def dashboard(request):
     form = ExceptionFilterForm(request.GET or None)
     customer_id, region = form.scope()
     as_of = settings.DEMO_AS_OF
+    exceptions = list_exceptions(customer_id, region, as_of)
     context = {
         "form": form,
-        "metrics": dashboard_metrics(customer_id, region, as_of),
-        "exceptions": list_exceptions(customer_id, region, as_of),
+        "metrics": dashboard_metrics(customer_id, region, as_of, exceptions),
+        "exceptions": exceptions,
         "scope": {"customer": customer_id or "", "region": region or ""},
     }
     template = "web/partials/exception_queue.html" if _is_htmx(request) else "web/dashboard.html"
@@ -36,7 +38,11 @@ def shipment_detail(request, shipment_id):
     shipment = get_shipment(shipment_id, customer_id)
     if shipment is None:
         raise Http404("Shipment not found in the selected customer scope.")
-    context = {"shipment": shipment, "customer_scope": customer_id or ""}
+    context = {
+        "shipment": shipment,
+        "flags": shipment_flags(shipment, settings.DEMO_AS_OF),
+        "customer_scope": customer_id or "",
+    }
     template = "web/partials/shipment_detail.html" if _is_htmx(request) else "web/shipment.html"
     return render(request, template, context)
 
@@ -64,5 +70,9 @@ def documentation(request):
     return render(
         request,
         "web/documentation.html",
-        {"providers": provider_status(), "evaluation_runs": EvaluationRun.objects.all()[:10]},
+        {
+            "providers": provider_status(),
+            "rules": rule_definitions(),
+            "evaluation_runs": EvaluationRun.objects.all()[:10],
+        },
     )

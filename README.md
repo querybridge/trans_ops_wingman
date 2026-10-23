@@ -11,6 +11,7 @@ cp .env.example .env        # set DJANGO_SECRET_KEY; DJANGO_DEBUG=true for local
 .yzer/bin/python manage.py migrate
 .yzer/bin/python manage.py createcachetable
 .yzer/bin/python manage.py createsuperuser
+.yzer/bin/python manage.py seed_demo          # deterministic synthetic data
 .yzer/bin/python manage.py runserver
 ```
 
@@ -34,4 +35,4 @@ Every page requires login (Django authentication). Django admin is at `/admin/`.
 
 ## Status
 
-Skeleton only: the exception rules, seed data, retrieval, and AI workflow are not implemented yet. The UI shows honest "not connected" states instead of placeholder results.
+Working: deterministic synthetic dataset (`docs/synthetic_dataset.md`), exception rules (`docs/exception_rules.md`), exception queue, and shipment detail. Not yet built: CSV import, SOP retrieval, and the AI workflow; the UI shows honest "not connected" states for those.

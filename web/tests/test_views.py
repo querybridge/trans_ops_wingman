@@ -43,11 +43,22 @@ class ViewTests(TestCase):
         response = self.client.get(reverse("web:dashboard"))
         self.assertRedirects(response, f"{reverse('login')}?next=/")
 
-    def test_dashboard_renders_brand_shell_and_honest_empty_state(self):
+    def test_dashboard_renders_brand_shell_and_rule_flags(self):
         response = self.client.get(reverse("web:dashboard"))
         self.assertContains(response, "Transportation Operations Wingman")
         self.assertContains(response, "Prototype - Synthetic data - For Demo Only")
-        self.assertContains(response, "Exception Rules Not Connected Yet")
+        # The fixture shipment's window ended at 13:00 with no scans, so both rules flag it.
+        self.assertContains(response, "Missed window")
+        self.assertContains(response, "Threshold:")
+
+    def test_empty_scope_shows_no_exceptions_state(self):
+        response = self.client.get(reverse("web:dashboard"), {"customer": "BOLT"})
+        self.assertContains(response, "No Exceptions in This Scope")
+
+    def test_shipment_detail_lists_flags_with_evidence(self):
+        response = self.client.get(reverse("web:shipment_detail", args=["SHP-00001"]))
+        self.assertContains(response, "Exception Flags")
+        self.assertContains(response, "Missed window")
 
     def test_documentation_link_is_in_footer_not_header(self):
         html = self.client.get(reverse("web:dashboard")).content.decode()
@@ -88,5 +99,6 @@ class ViewTests(TestCase):
         self.assertContains(response, "Find Exceptions")
         self.assertContains(response, "Explain a Shipment")
         self.assertContains(response, "Create a Manager Briefing")
+        self.assertContains(response, "How Shipments Are Flagged")
         self.assertContains(response, "Not configured")
         self.assertContains(response, "No Evaluation Runs Yet")

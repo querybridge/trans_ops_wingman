@@ -49,6 +49,23 @@
   </ol>
 </section>
 
+<section class="card">
+  <p class="eyebrow">Exception Rules</p>
+  <h2>How Shipments Are Flagged</h2>
+  <p class="muted">Flags are calculated in code from shipment and scan records at the fixed demo timestamp. The AI never decides what is flagged or how many.</p>
+  <div class="table-scroll">
+    <table class="table">
+      <thead><tr><th scope="col">Rule</th><th scope="col">Definition</th><th scope="col">Threshold and severity</th></tr></thead>
+      <tbody>
+        {% for r in rules %}
+        <tr><td><strong>{{ r.label }}</strong></td><td>{{ r.definition }}</td><td>{{ r.threshold }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="caption">Severity is rule-based (rule type and age), not a learned probability. One shipment can carry more than one flag.</p>
+</section>
+
 <div class="grid-2">
   <section class="card">
     <p class="eyebrow">Scope</p>

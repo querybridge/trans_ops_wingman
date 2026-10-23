@@ -7,6 +7,24 @@
   <span class="badge badge--info">{{ shipment.get_status_display }}</span>
 </div>
 
+<h3 class="section-title">Exception Flags</h3>
+{% if flags %}
+<ul class="flags">
+  {% for f in flags %}
+  <li class="flag">
+    <span class="badge badge--{{ f.severity }}">{{ f.severity|capfirst }}</span>
+    <div>
+      <strong>{{ f.rule_label }}</strong> · <span class="num">{{ f.age_display }}</span>
+      <div>{{ f.reason }}</div>
+      <div class="caption">Threshold: {{ f.threshold }}{% if f.evidence_ids %} · Evidence:{% for ref in f.evidence_ids %} <a class="id ref" href="#{{ ref }}">{{ ref }}</a>{% endfor %}{% endif %}</div>
+    </div>
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p class="muted">No exception flags as of the demo timestamp.</p>
+{% endif %}
+
 <h3 class="section-title">Facts</h3>
 <dl class="facts">
   <div><dt>Delivery window</dt><dd class="num">{{ shipment.delivery_window_start|date:"M j, g:i A" }} – {{ shipment.delivery_window_end|date:"g:i A T" }}</dd></div>

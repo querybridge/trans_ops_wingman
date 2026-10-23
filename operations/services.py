@@ -4,6 +4,7 @@ Customer scope is always passed in from validated application context.
 """
 
 from .models import Customer, Region, Shipment
+from .rules import evaluate, evaluate_shipment
 
 
 def scoped_shipments(customer_id=None, region=None):
@@ -28,15 +29,18 @@ def filter_choices():
 
 
 def list_exceptions(customer_id, region, as_of):
-    """Deterministic exception rules. Not implemented yet: returns None, never fake rows."""
-    return None
+    """Prioritized exception flags for the scope, from the deterministic rules."""
+    return evaluate(scoped_shipments(customer_id, region).prefetch_related("events"), as_of)
 
 
-def dashboard_metrics(customer_id, region, as_of):
-    exceptions = list_exceptions(customer_id, region, as_of)
-    shipments = scoped_shipments(customer_id, region).count()
+def shipment_flags(shipment, as_of):
+    return evaluate_shipment(shipment, as_of)
+
+
+def dashboard_metrics(customer_id, region, as_of, exceptions=None):
     if exceptions is None:
-        return {"shipments": shipments, "needing_attention": None, "missed_windows": None, "missing_pod": None}
+        exceptions = list_exceptions(customer_id, region, as_of)
+    shipments = scoped_shipments(customer_id, region).count()
     return {
         "shipments": shipments,
         "needing_attention": len({e.shipment_id for e in exceptions}),
