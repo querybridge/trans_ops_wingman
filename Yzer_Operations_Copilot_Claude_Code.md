@@ -1,4 +1,4 @@
-# Operations Wingman — Claude Code Build Brief
+# Transportation Operations Wingman — Claude Code Build Brief
 
 ## Start here
 
@@ -145,7 +145,7 @@ Use a restrained operations-dashboard style: clear typography, readable tables, 
 
 Main screen:
 
-- Title: Operations Wingman.
+- Title: Transportation Operations Wingman.
 - Visible “Prototype - Synthetic data - For Demo Only” label and fixed demo timestamp.
 - Customer and region filters.
 - Four compact metrics: shipments, shipments needing attention, missed windows, missing POD.

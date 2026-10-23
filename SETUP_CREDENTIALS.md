@@ -1,6 +1,6 @@
-# Operations Wingman: Accounts, Credentials, and Costs
+# Transportation Operations Wingman: Accounts, Credentials, and Costs
 
-This guide covers every external account Operations Wingman needs, how to get each credential, how to check it works, and what it costs. Prices were checked on **2026-10-22** from each vendor's public pricing page. Re-check them before quoting any number in the demo.
+This guide covers every external account Transportation Operations Wingman needs, how to get each credential, how to check it works, and what it costs. Prices were checked on **2026-10-22** from each vendor's public pricing page. Re-check them before quoting any number in the demo.
 
 All values go into a local `.env` file copied from `.env.example`. `.env` is git-ignored, so never commit it. On PythonAnywhere, keep a separate `.env` in the project directory and load it from the WSGI file.
 
@@ -157,7 +157,7 @@ Access control uses **Django's built-in authentication**, not PythonAnywhere's p
   ```bash
   .yzer/bin/python -c "import secrets; print(secrets.token_urlsafe(50))"
   ```
-- Every Operations Wingman view requires login (`LoginRequiredMiddleware` or `@login_required`).
+- Every Transportation Operations Wingman view requires login (`LoginRequiredMiddleware` or `@login_required`).
 - **Two separate accounts:**
   - A **demo user** (not staff, not superuser) for the CIO walkthrough. Create it with a management command that prompts for the password, or with `createsuperuser` followed by removing the flags. Use only the operations screens.
   - An **admin superuser** for Django admin, made with `manage.py createsuperuser`. Never share it.
