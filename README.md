@@ -50,6 +50,8 @@ See `docs/deployment_pythonanywhere.md`.
 
 ## Status
 
-Working without provider credentials: synthetic dataset (`docs/synthetic_dataset.md`), exception rules (`docs/exception_rules.md`), CSV import (`docs/tms_integration.md`), SOP procedures with scoped database retrieval, the AI tools, evidence packages, validation, and repair/degrade workflow (`docs/ai_architecture.md`), tested with a scripted test double, and the 20-case evaluation (latest offline report: `evaluation/reports/latest_offline.md`).
+Working without provider credentials: synthetic dataset (`docs/synthetic_dataset.md`), exception rules (`docs/exception_rules.md`), CSV import (`docs/tms_integration.md`), SOP procedures with scoped database retrieval, the AI tools, evidence packages, validation, and repair/degrade workflow (`docs/ai_architecture.md`), and the 20-case evaluation (latest offline report: `evaluation/reports/latest_offline.md`).
 
-Waiting on credentials: the live LLM adapter and LangChain wiring, Hugging Face embeddings, Pinecone retrieval, and LangSmith tracing. Until then the UI shows honest "not configured" states.
+Live: Claude explanations and briefings through LangChain (`docs/ai_architecture.md`). The latest live evaluation passed 20 of 20 cases (61 of 61 checks) with no repairs, a median of 11 s per call, and an estimated $0.52 per run (`evaluation/reports/latest_live.md`).
+
+Waiting on credentials: Hugging Face embeddings, Pinecone retrieval, and LangSmith tracing. Until then, procedure retrieval uses the database filter, and Demo Documentation says so.

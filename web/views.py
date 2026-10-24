@@ -61,8 +61,7 @@ def _ai_client_or_state():
     """The live client, or a rendered honest state when AI can't run."""
     if not ai_available():
         return None, "unconfigured"
-    client = get_llm_client()
-    return client, (None if client else "not_implemented")
+    return get_llm_client(), None
 
 
 def _render_failure(request, result):

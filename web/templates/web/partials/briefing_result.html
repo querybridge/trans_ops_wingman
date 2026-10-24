@@ -25,5 +25,5 @@
   <h4 class="ai-label">Missing information</h4>
   <ul class="cited">{% for item in b.missing_information %}<li>{{ item }}</li>{% endfor %}</ul>
   {% endif %}
-  <p class="caption">Model {{ result.model }} · prompt {{ result.prompt_version }} · {{ result.latency_ms }} ms. Counts and shipment list were checked against the rules.</p>
+  <p class="caption">Model {{ result.model }} · prompt {{ result.prompt_version }} · {{ result.latency_ms }} ms{% if result.cost_usd is not None %} · {{ result.input_tokens }} in / {{ result.output_tokens }} out tokens · est. ${{ result.cost_usd|floatformat:3 }}{% endif %}. Counts and shipment list were checked against the rules.</p>
 </div>

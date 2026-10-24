@@ -118,6 +118,9 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# Blanks provider credentials so tests never make live (paid) calls.
+TEST_RUNNER = "config.test_runner.OfflineTestRunner"
+
 if not DEBUG:
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
@@ -159,6 +162,10 @@ LLM_PROVIDER = os.environ.get("LLM_PROVIDER", "anthropic")
 LLM_MODEL = os.environ.get("LLM_MODEL", "")
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 LLM_TIMEOUT_SECONDS = float(os.environ.get("LLM_TIMEOUT_SECONDS", "30"))
+# Reasoning effort (low | medium | high | xhigh | max): higher is slower and costs more.
+LLM_EFFORT = os.environ.get("LLM_EFFORT", "medium")
+# Room for adaptive thinking plus the JSON answer.
+LLM_MAX_TOKENS = int(os.environ.get("LLM_MAX_TOKENS", "8000"))
 
 LANGSMITH_TRACING = env_bool("LANGSMITH_TRACING", False)
 LANGSMITH_API_KEY = os.environ.get("LANGSMITH_API_KEY", "")

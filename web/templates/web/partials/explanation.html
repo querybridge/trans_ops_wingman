@@ -28,5 +28,5 @@
   <ul class="cited">{% for item in x.missing_information %}<li>{{ item }}</li>{% endfor %}</ul>
   {% endif %}
 
-  <p class="caption">Model {{ result.model }} · prompt {{ result.prompt_version }} · {{ result.latency_ms }} ms{% if result.attempts > 1 %} · repaired after an invalid first response{% endif %}. Citations were checked against the evidence shown; review before acting.</p>
+  <p class="caption">Model {{ result.model }} · prompt {{ result.prompt_version }} · {{ result.latency_ms }} ms{% if result.cost_usd is not None %} · {{ result.input_tokens }} in / {{ result.output_tokens }} out tokens · est. ${{ result.cost_usd|floatformat:3 }}{% endif %}{% if result.attempts > 1 %} · repaired after an invalid first response{% endif %}. Citations were checked against the evidence shown; review before acting.</p>
 </div>

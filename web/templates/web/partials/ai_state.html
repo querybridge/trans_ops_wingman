@@ -1,12 +1,7 @@
 {% if state == "unconfigured" %}
 <div class="callout callout--info" role="status">
   <strong>AI explanation unavailable.</strong>
-  One or more providers (vector retrieval, embeddings, language model) aren't configured, so no generated text is shown. The facts and evidence above remain authoritative. See Demo Documentation for status.
-</div>
-{% elif state == "not_implemented" %}
-<div class="callout callout--info" role="status">
-  <strong>AI explanation not connected yet.</strong>
-  Providers are configured, but the explanation workflow hasn't been built. No generated text is shown.
+  The language model isn't configured, so no generated text is shown. The facts and evidence above remain authoritative. See Demo Documentation for status.
 </div>
 {% elif state == "rate_limited" %}
 <div class="callout callout--warning" role="status">

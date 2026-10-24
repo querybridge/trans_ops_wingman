@@ -34,6 +34,7 @@ class EvidencePackage:
     @property
     def ids(self):
         ids = {f["flag_id"] for f in self.flags}
+        ids |= {e for f in self.flags for e in f.get("evidence_ids", [])}  # events the rules cited
         ids |= {e["event_id"] for e in self.events}
         ids |= {n["note_id"] for n in self.notes}
         ids |= {p["chunk_id"] for p in self.procedures}

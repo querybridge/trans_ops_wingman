@@ -236,6 +236,11 @@ class Runner:
             "latency_ms_max": max(latencies),
             "input_tokens": sum(c.input_tokens or 0 for c in calls),
             "output_tokens": sum(c.output_tokens or 0 for c in calls),
+            "estimated_cost_usd": round(sum(c.cost_usd or 0 for c in calls), 4),
+            "repair_reasons": [
+                {"subject": c.evidence.subject if c.evidence else None, "reasons": c.repair_reasons[:5]}
+                for c in calls if c.repair_reasons
+            ],
         }
 
     def run(self):

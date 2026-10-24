@@ -10,7 +10,7 @@ from dataclasses import dataclass, field
 from typing import Any, Optional
 
 from .evidence import build_briefing_evidence, build_shipment_evidence
-from .llm import ProviderError, ProviderTimeout
+from .llm import ProviderError, ProviderTimeout, estimate_cost
 from .prompts import PROMPT_VERSION, briefing_messages, explain_messages, repair_message
 from .schemas import ManagerBriefing, ShipmentExplanation
 from .tools import ToolContext
@@ -25,6 +25,7 @@ class AIResult:
     evidence: Any = None
     output: Any = None
     errors: list = field(default_factory=list)
+    repair_reasons: list = field(default_factory=list)  # validation errors from rejected attempts
     attempts: int = 0
     latency_ms: int = 0
     input_tokens: Optional[int] = None
@@ -35,6 +36,10 @@ class AIResult:
     @property
     def ok(self):
         return self.status == "ok"
+
+    @property
+    def cost_usd(self):
+        return estimate_cost(self.model, self.input_tokens, self.output_tokens)
 
 
 def _generate(client, system, user, schema, validate, evidence):
@@ -52,6 +57,7 @@ def _generate(client, system, user, schema, validate, evidence):
                 result.status, result.output, result.errors = "ok", outcome.output, []
                 break
             result.errors = outcome.errors
+            result.repair_reasons.extend(outcome.errors)
             prompt = repair_message(user, outcome.errors)
     except ProviderTimeout:
         result.status, result.errors = "timeout", ["The language model did not respond in time."]

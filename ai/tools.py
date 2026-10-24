@@ -10,10 +10,17 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
 
+from django.utils import timezone
+
 from operations import services
 from operations.models import Shipment
 
 from .schemas import ListExceptionsInput, RetrieveProcedureInput, ShipmentInput
+
+
+def _local(dt):
+    """ISO 8601 in the operations timezone (America/New_York), so the model reports local times."""
+    return timezone.localtime(dt).isoformat()
 
 
 class ScopeError(PermissionError):
@@ -70,11 +77,11 @@ def get_shipment(ctx, args: ShipmentInput):
         "region": s.region,
         "service_type": s.service_type,
         "status": s.status,
-        "delivery_window_start": s.delivery_window_start.isoformat(),
-        "delivery_window_end": s.delivery_window_end.isoformat(),
-        "latest_event_at": s.latest_event_at.isoformat() if s.latest_event_at else None,
-        "delivered_at": s.delivered_at.isoformat() if s.delivered_at else None,
-        "eta": s.eta.isoformat() if s.eta else ("not provided by source" if not closed else None),
+        "delivery_window_start": _local(s.delivery_window_start),
+        "delivery_window_end": _local(s.delivery_window_end),
+        "latest_event_at": _local(s.latest_event_at) if s.latest_event_at else None,
+        "delivered_at": _local(s.delivered_at) if s.delivered_at else None,
+        "eta": _local(s.eta) if s.eta else ("not provided by source" if not closed else None),
         "assigned_role": s.assigned_role or None,
         "source": f"{s.source_system}/{s.source_record_id}",
     }
@@ -85,7 +92,7 @@ def get_shipment_events(ctx, args: ShipmentInput):
     if s is None:
         return None
     return [
-        {"event_id": e.event_id, "type": e.event_type, "occurred_at": e.occurred_at.isoformat(), "detail": e.detail}
+        {"event_id": e.event_id, "type": e.event_type, "occurred_at": _local(e.occurred_at), "detail": e.detail}
         for e in s.events.all()
         if e.occurred_at <= ctx.as_of
     ]
@@ -96,7 +103,7 @@ def get_dispatch_notes(ctx, args: ShipmentInput):
     if s is None:
         return None
     return [
-        {"note_id": n.note_id, "author_role": n.author_role, "noted_at": n.noted_at.isoformat(), "text": n.text}
+        {"note_id": n.note_id, "author_role": n.author_role, "noted_at": _local(n.noted_at), "text": n.text}
         for n in s.notes.all()
         if n.noted_at <= ctx.as_of
     ]

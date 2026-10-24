@@ -43,10 +43,11 @@ class AIViewTests(TestCase):
         self.assertContains(response, "didn't respond")
         self.assertContains(response, "Retry")
 
-    def test_configured_but_no_adapter_is_honest(self):
-        with mock.patch("web.views.ai_available", return_value=True):
+    def test_no_key_is_honest_and_makes_no_call(self):
+        with mock.patch("ai.llm.AnthropicClient") as adapter:
             response = self.client.post(reverse("web:explain_shipment", args=["SHP-00031"]))
-        self.assertContains(response, "not connected yet")
+        self.assertContains(response, "AI explanation unavailable")
+        adapter.assert_not_called()
 
     def test_detail_shows_procedures_and_gap(self):
         hhg = self.client.get(reverse("web:shipment_detail", args=["SHP-00031"]))

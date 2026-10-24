@@ -2,13 +2,19 @@
 
 from django.conf import settings
 
+from .llm import llm_configured
+
 
 def provider_status():
     return [
         {
             "name": "Vector retrieval (Pinecone)",
             "configured": bool(settings.PINECONE_API_KEY),
-            "detail": f"index {settings.PINECONE_INDEX_NAME} · {settings.PINECONE_CLOUD}/{settings.PINECONE_REGION}",
+            "detail": (
+                f"index {settings.PINECONE_INDEX_NAME} · {settings.PINECONE_CLOUD}/{settings.PINECONE_REGION}"
+                if settings.PINECONE_API_KEY
+                else "procedures are matched by database metadata filter (customer, issue type, region, effective dates)"
+            ),
         },
         {
             "name": "Embeddings (Hugging Face)",
@@ -17,8 +23,8 @@ def provider_status():
         },
         {
             "name": "Language model",
-            "configured": bool(settings.LLM_MODEL and settings.ANTHROPIC_API_KEY),
-            "detail": f"{settings.LLM_PROVIDER} · {settings.LLM_MODEL or 'no model set'}",
+            "configured": llm_configured(),
+            "detail": f"{settings.LLM_PROVIDER} via LangChain · {settings.LLM_MODEL or 'no model set'} · effort {settings.LLM_EFFORT}",
         },
         {
             "name": "Tracing (LangSmith, optional)",
@@ -29,4 +35,5 @@ def provider_status():
 
 
 def ai_available():
-    return all(p["configured"] for p in provider_status()[:3])
+    """Explanations and briefings need only the language model; retrieval falls back to the database filter."""
+    return llm_configured()
