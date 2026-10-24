@@ -47,7 +47,7 @@ Every page requires login (Django authentication). Django admin is at `/admin/`.
 
 ## Deployment
 
-See `docs/deployment_pythonanywhere.md`.
+See `docs/deployment_pythonanywhere.md`. Deployed to https://opswingman-querybridge.pythonanywhere.com/ on Oct 24, 2026. `smoke_check --network` passes every check, and live AI calls return in about 12 seconds.
 
 ## Status
 

@@ -45,6 +45,8 @@ The evaluation also caught real problems, which were fixed before the demo:
 - Early answers were too long and needed retries. A tighter prompt took retries from 4 of 12 calls to 0.
 - A briefing once said "no procedure on file" when one existed. The briefing now receives the applicable procedures, and the app rejects that kind of false claim.
 
+**Deployed and verified (Oct 24, 2026):** the PythonAnywhere deployment passes every smoke check: data, users, all four providers, the Pinecone index, and debug mode off. The AI responds in about 12 seconds from the server, matching local measurements.
+
 **Not yet measured:** time saved. The plan is to time the same task (preparing the Tampa exception briefing) by hand and with the prototype on the same synthetic scenario, and report both with the sample size. Any weekly-hours estimate will show its inputs (managers × briefings per week × minutes saved ÷ 60) and will not be presented as verified savings.
 
 ## Path to the real systems
