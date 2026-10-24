@@ -16,7 +16,7 @@ from django.utils import timezone
 from ai.evidence import build_briefing_evidence, build_shipment_evidence
 from ai.llm import ProviderTimeout
 from ai.prompts import PROMPT_VERSION, explain_messages
-from ai.tools import ScopeError, ToolContext, call_tool
+from ai.tools import ScopeError, ToolContext, call_tool, procedure_query
 from ai.workflow import run_briefing, run_explanation
 from operations.services import list_exceptions, retrieve_procedures
 
@@ -75,6 +75,7 @@ class Runner:
         self.k = self.spec["retrieval_k"]
         self.ai_calls = []
         self.retrieval_hits = []
+        self.retrieval_methods = set()
 
     # --- helpers -----------------------------------------------------------
     def check(self, result, name, ok, detail=""):
@@ -96,7 +97,11 @@ class Runner:
 
     def retrieval(self, result, case, expected_match=None):
         docs, match = retrieve_procedures(case["customer_id"], case["issue_type"], case.get("region"), self.as_of)
-        ranked = [c.chunk_id for d in docs for c in d.chunks.all()][: self.k]
+        # Rank exactly as the app does: semantic within allowed documents when configured, else database order.
+        tool = call_tool(ToolContext(case["customer_id"], self.as_of), "retrieve_procedure", {
+            "issue_type": case["issue_type"], "region": case.get("region"), "query": procedure_query(case["issue_type"])})
+        self.retrieval_methods.add(tool["retrieval"])
+        ranked = [s["chunk_id"] for s in tool["sections"]][: self.k]
         if expected_match:
             self.check(result, "match_scope", match == expected_match, f"got {match}")
         for chunk in case.get("expected_chunks", []):
@@ -223,6 +228,14 @@ class Runner:
             "normal_cohort_false_positives": len({s for s, _ in actual} - planted),
         }
 
+    def retrieval_method(self):
+        methods = self.retrieval_methods - {"none"}  # cases with no applicable procedure don't rank anything
+        if methods == {"semantic"}:
+            return (f"semantic: {settings.HF_EMBEDDING_MODEL} embeddings + Pinecone, ranking sections within "
+                    "the procedures the database filter allows (customer, issue, effective date, region)")
+        return ("database filter (customer, issue, effective date, region); no embeddings"
+                + ("" if methods <= {"database"} else f" [{', '.join(sorted(methods))}]"))
+
     def ai_metrics(self):
         calls = [c for c in self.ai_calls if c.status != "not_found"]
         if not calls:
@@ -259,7 +272,7 @@ class Runner:
             "checks": {s: sum(c.status == s for r in results for c in r.checks) for s in ("pass", "fail", "skipped")},
             "rules": self.rule_metrics(),
             "retrieval": {
-                "method": "database filter (customer, issue, effective date, region); no embeddings",
+                "method": self.retrieval_method(),
                 "k": self.k,
                 "hit_rate": round(sum(self.retrieval_hits) / len(self.retrieval_hits), 3) if self.retrieval_hits else None,
                 "expected_chunks": len(self.retrieval_hits),
@@ -275,7 +288,7 @@ def save_run(results, metrics, client, write_report=True):
         dataset_version=load_cases()["dataset_version"],
         prompt_version=PROMPT_VERSION,
         llm_model=getattr(client, "model", "") if client else "",
-        embedding_model="none (database retrieval)",
+        embedding_model=settings.HF_EMBEDDING_MODEL if "semantic" in metrics["retrieval"]["method"] else "none (database retrieval)",
         live_providers=client is not None,
         cases_total=len(results),
         cases_passed=sum(r.status == "pass" for r in results),

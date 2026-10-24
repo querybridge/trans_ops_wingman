@@ -1,8 +1,8 @@
 # Evaluation Report (live)
 
-- Run: 2026-10-24 15:41 EDT
+- Run: 2026-10-24 16:25 EDT
 - Dataset v1, cases v1, prompt v2
-- Language model: claude-opus-5-5; embeddings: none (database retrieval)
+- Language model: claude-opus-5-5; embeddings: BAAI/bge-small-en-v1.5
 - Cases: 20 pass, 0 partial (live-model checks skipped), 0 fail
 - Checks: 61 pass, 0 fail, 0 skipped
 
@@ -10,13 +10,13 @@
 Precision 1.0, recall 1.0, severity agreement 1.0; 9/9 expected flags found, 0 false positives, 0 flagged shipments in the 92-shipment normal cohort.
 
 ## Procedure retrieval
-Hit rate at k=5: 1.0 over 4 expected sections. Method: database filter (customer, issue, effective date, region); no embeddings.
+Hit rate at k=5: 1.0 over 4 expected sections. Method: semantic: BAAI/bge-small-en-v1.5 embeddings + Pinecone, ranking sections within the procedures the database filter allows (customer, issue, effective date, region).
 
 ## Isolation
 0 isolation failures.
 
 ## AI
-{"calls": 12, "valid_output_rate": 1.0, "repaired": 0, "latency_ms_median": 11025, "latency_ms_max": 15791, "input_tokens": 57468, "output_tokens": 14405, "estimated_cost_usd": 0.518, "repair_reasons": []}
+{"calls": 12, "valid_output_rate": 1.0, "repaired": 0, "latency_ms_median": 11885, "latency_ms_max": 16882, "input_tokens": 58404, "output_tokens": 14974, "estimated_cost_usd": 0.5331, "repair_reasons": []}
 
 ## Cases
 | Case | Category | Status | Failed or skipped checks |

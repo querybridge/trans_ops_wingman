@@ -2,23 +2,26 @@
 
 from django.conf import settings
 
+from .embeddings import embeddings_configured
 from .llm import llm_configured
+from .vectorstore import vector_configured
 
 
 def provider_status():
     return [
         {
             "name": "Vector retrieval (Pinecone)",
-            "configured": bool(settings.PINECONE_API_KEY),
+            "configured": vector_configured(),
             "detail": (
-                f"index {settings.PINECONE_INDEX_NAME} · {settings.PINECONE_CLOUD}/{settings.PINECONE_REGION}"
-                if settings.PINECONE_API_KEY
+                f"index {settings.PINECONE_INDEX_NAME} · {settings.PINECONE_CLOUD}/{settings.PINECONE_REGION} · "
+                "ranks sections within the procedures the database allows"
+                if vector_configured()
                 else "procedures are matched by database metadata filter (customer, issue type, region, effective dates)"
             ),
         },
         {
             "name": "Embeddings (Hugging Face)",
-            "configured": bool(settings.HF_TOKEN and settings.HF_EMBEDDING_MODEL and settings.EMBEDDING_DIMENSIONS),
+            "configured": embeddings_configured(),
             "detail": f"{settings.HF_EMBEDDING_MODEL or 'no model set'} · {settings.EMBEDDING_DIMENSIONS or '?'} dims · {settings.HF_EMBEDDING_PROVIDER}",
         },
         {

@@ -136,7 +136,7 @@
   <div class="metrics">
     <div class="metric"><span class="eyebrow">Cases</span><span class="metric__value num">{{ m.cases.pass }}/{{ latest_run.cases_total }}</span><span class="caption">pass · {{ m.cases.partial }} partial · {{ m.cases.fail }} fail</span></div>
     <div class="metric"><span class="eyebrow">Rule Precision / Recall</span><span class="metric__value num">{{ m.rules.precision }} / {{ m.rules.recall }}</span><span class="caption">{{ m.rules.normal_cohort_false_positives }} false positives in normal cohort</span></div>
-    <div class="metric"><span class="eyebrow">Retrieval Hit @{{ m.retrieval.k }}</span><span class="metric__value num">{{ m.retrieval.hit_rate }}</span><span class="caption">database filter, no embeddings</span></div>
+    <div class="metric"><span class="eyebrow">Retrieval Hit @{{ m.retrieval.k }}</span><span class="metric__value num">{{ m.retrieval.hit_rate }}</span><span class="caption">{% if "semantic" in m.retrieval.method %}semantic within allowed procedures{% else %}database filter, no embeddings{% endif %}</span></div>
     <div class="metric"><span class="eyebrow">Isolation Failures</span><span class="metric__value num">{{ m.isolation_failures }}</span><span class="caption">cross-customer checks</span></div>
   </div>
   {% if not latest_run.live_providers %}

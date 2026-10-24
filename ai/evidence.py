@@ -28,6 +28,7 @@ class EvidencePackage:
     procedures: list = field(default_factory=list)
     procedure_gaps: list = field(default_factory=list)
     missing_information: list = field(default_factory=list)
+    retrieval: list = field(default_factory=list)  # procedure retrieval method per issue
     deterministic: dict = field(default_factory=dict)
     truncated: bool = False
 
@@ -43,6 +44,17 @@ class EvidencePackage:
         else:
             ids |= {f["shipment_id"] for f in self.flags}
         return ids
+
+    @property
+    def retrieval_label(self):
+        methods = set(self.retrieval) - {"none"}
+        if not methods:
+            return "no procedures on file"
+        if methods == {"semantic"}:
+            return "semantic (Pinecone)"
+        if any("unavailable" in m for m in methods):
+            return "database (vector search unavailable)"
+        return "database" if methods <= {"database"} else "mixed"
 
     def to_payload(self):
         payload = {
@@ -91,7 +103,10 @@ def build_shipment_evidence(ctx, shipment_id):
     if flags:
         issues.append("escalation")
     for issue in issues:
-        result = tools.retrieve_procedure(ctx, RetrieveProcedureInput(issue_type=issue, region=facts["region"]))
+        details = [f["reason"] for f in flags if issue in (f["rule"], "escalation")]
+        query = tools.procedure_query(issue, details)
+        result = tools.retrieve_procedure(ctx, RetrieveProcedureInput(issue_type=issue, region=facts["region"], query=query))
+        pkg.retrieval.append(result["retrieval"])
         if result["match"] == "none":
             pkg.procedure_gaps.append(issue)
         pkg.procedures.extend(result["sections"])

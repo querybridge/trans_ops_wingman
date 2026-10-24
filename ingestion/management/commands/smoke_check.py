@@ -9,6 +9,7 @@ from django.core.management.base import BaseCommand
 from django.db import connection
 
 from ai.status import provider_status
+from ai.vectorstore import NAMESPACE, ensure_index, get_store, vector_configured
 from evaluation.models import EvaluationRun
 from operations.models import ProcedureDocument, Shipment
 
@@ -65,4 +66,16 @@ class Command(BaseCommand):
                     self.line(True, f"Outbound HTTPS to {name}", f"{url} (HTTP {exc.code})")
                 except (urllib.error.URLError, socket.timeout) as exc:
                     self.line(False, f"Outbound HTTPS to {name}", f"{url}: {getattr(exc, 'reason', exc)}")
+            if vector_configured():
+                try:
+                    from operations.models import ProcedureChunk
+
+                    ensure_index()
+                    namespace = get_store().index.describe_index_stats().namespaces.get(NAMESPACE)
+                    loaded = namespace.vector_count if namespace else 0
+                    expected = ProcedureChunk.objects.count()
+                    self.line(loaded == expected, "Pinecone index loaded", f"{loaded} of {expected} procedure sections"
+                              + ("" if loaded == expected else "; run ingest_vectors"))
+                except Exception as exc:  # noqa: BLE001 - report, don't crash the smoke check
+                    self.line(False, "Pinecone index loaded", f"{type(exc).__name__}: {exc}")
         self.stdout.write(self.style.SUCCESS("Core checks passed.") if all(results) else self.style.WARNING("Some core checks failed."))

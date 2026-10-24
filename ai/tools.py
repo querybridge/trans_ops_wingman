@@ -6,6 +6,7 @@ model) is only accepted if it matches that scope; it can never widen it. There
 is no arbitrary SQL and no file access.
 """
 
+import logging
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
@@ -15,7 +16,25 @@ from django.utils import timezone
 from operations import services
 from operations.models import Shipment
 
+from . import vectorstore
 from .schemas import ListExceptionsInput, RetrieveProcedureInput, ShipmentInput
+
+logger = logging.getLogger(__name__)
+
+RETRIEVAL_K = 5  # procedure sections per issue when ranked semantically
+
+ISSUE_QUERIES = {
+    "missed_window": "Delivery window missed: package not delivered by the end of the promised window.",
+    "missing_scan": "No recent scan: package location unknown beyond the scan threshold.",
+    "failed_attempt": "Delivery attempt failed and no later delivery.",
+    "missing_pod": "Delivered without proof of delivery captured.",
+    "escalation": "Who to escalate to and how to record the decision.",
+}
+
+
+def procedure_query(issue_type, details=()):
+    """Situation text for ranking procedure sections: a fixed issue description plus rule-generated details."""
+    return " ".join([ISSUE_QUERIES[issue_type], *details])[:1000]
 
 
 def _local(dt):
@@ -112,23 +131,30 @@ def get_dispatch_notes(ctx, args: ShipmentInput):
 def retrieve_procedure(ctx, args: RetrieveProcedureInput):
     customer_id = _scope(ctx, args.customer_id)
     docs, match = services.retrieve_procedures(customer_id, args.issue_type, args.region, ctx.as_of)
-    return {
-        "issue_type": args.issue_type,
-        "match": match,
-        "sections": [
-            {
-                "chunk_id": c.chunk_id,
-                "document_id": d.document_id,
-                "version": d.version,
-                "title": d.title,
-                "scope": d.scope_label,
-                "section": c.section,
-                "text": c.text,
-            }
-            for d in docs
-            for c in d.chunks.all()
-        ],
-    }
+    sections = [
+        {
+            "chunk_id": c.chunk_id,
+            "document_id": d.document_id,
+            "version": d.version,
+            "title": d.title,
+            "scope": d.scope_label,
+            "section": c.section,
+            "text": c.text,
+        }
+        for d in docs
+        for c in d.chunks.all()
+    ]
+    retrieval = "database" if sections else "none"
+    if sections and args.query and vectorstore.vector_configured():
+        try:
+            ranked = vectorstore.rank_sections(args.query, [s["chunk_id"] for s in sections], customer_id, RETRIEVAL_K)
+            by_id = {s["chunk_id"]: s for s in sections}
+            sections = [{**by_id[chunk_id], "relevance": round(score, 3)} for chunk_id, score in ranked]
+            retrieval = "semantic"
+        except vectorstore.VectorUnavailable as exc:
+            logger.warning("Vector search unavailable, using database order: %s", exc)
+            retrieval = "database (vector search unavailable)"
+    return {"issue_type": args.issue_type, "match": match, "retrieval": retrieval, "sections": sections}
 
 
 TOOLS = {

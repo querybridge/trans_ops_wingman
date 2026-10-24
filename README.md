@@ -37,6 +37,7 @@ Every page requires login (Django authentication). Django admin is at `/admin/`.
 
 ```bash
 .yzer/bin/python manage.py ingest_procedures                      # reload procedures/*.md
+.yzer/bin/python manage.py ingest_vectors [--create-index]        # embed procedure sections into Pinecone
 .yzer/bin/python manage.py import_shipments_csv <file> --dry-run  # validate a TMS CSV export
 .yzer/bin/python manage.py reset_demo --yes                       # wipe and reseed (keeps users)
 .yzer/bin/python manage.py run_evaluation [--live]                # 20-case evaluation; report in evaluation/reports/
@@ -52,6 +53,4 @@ See `docs/deployment_pythonanywhere.md`.
 
 Working without provider credentials: synthetic dataset (`docs/synthetic_dataset.md`), exception rules (`docs/exception_rules.md`), CSV import (`docs/tms_integration.md`), SOP procedures with scoped database retrieval, the AI tools, evidence packages, validation, and repair/degrade workflow (`docs/ai_architecture.md`), and the 20-case evaluation (latest offline report: `evaluation/reports/latest_offline.md`).
 
-Live: Claude explanations and briefings through LangChain, traced in LangSmith (`docs/ai_architecture.md`). The latest live evaluation passed 20 of 20 cases (61 of 61 checks) with no repairs, a median of 11 s per call, and an estimated $0.52 per run (`evaluation/reports/latest_live.md`).
-
-Waiting on credentials: Hugging Face embeddings and Pinecone retrieval. Until then, procedure retrieval uses the database filter, and Demo Documentation says so.
+Live: Claude explanations and briefings through LangChain, procedure sections ranked by Hugging Face embeddings in Pinecone (within the procedures the database allows), and traces in LangSmith (`docs/ai_architecture.md`). The latest live evaluation passed 20 of 20 cases (61 of 61 checks) with no repairs, a median of 12 s per call, and an estimated $0.53 per run (`evaluation/reports/latest_live.md`).

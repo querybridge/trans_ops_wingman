@@ -49,6 +49,7 @@ python manage.py migrate
 python manage.py createcachetable
 python manage.py seed_demo
 python manage.py collectstatic --noinput
+python manage.py ingest_vectors           # embeds SOP sections into Pinecone (add --create-index on a new index)
 python manage.py createsuperuser          # admin account (strong password)
 python manage.py create_demo_user demo    # walkthrough account, no admin access
 python manage.py run_evaluation           # records an offline evaluation run
@@ -72,7 +73,7 @@ Passwords are typed at prompts. Never put them in files or shell history.
 python manage.py smoke_check --network
 ```
 
-It checks the database, the 100 seeded shipments, procedures, the cache table, collected static files, the demo user and superuser, DEBUG off, a recorded evaluation run, provider configuration, and outbound HTTPS to Pinecone, Hugging Face, Anthropic, and LangSmith (no credentials sent).
+It checks the database, the 100 seeded shipments, procedures, the cache table, collected static files, the demo user and superuser, DEBUG off, a recorded evaluation run, provider configuration, outbound HTTPS to Pinecone, Hugging Face, Anthropic, and LangSmith (no credentials sent), and that the Pinecone index holds every procedure section.
 
 Then in a browser:
 
@@ -93,6 +94,7 @@ cd ~/yzer_demo && git pull
 workon yzer && pip install -r requirements.txt
 python manage.py migrate && python manage.py collectstatic --noinput
 python manage.py seed_demo     # only if the dataset changed; replaces synthetic data
+python manage.py ingest_vectors  # only if procedures changed
 ```
 
 Then click **Reload** on the Web tab.

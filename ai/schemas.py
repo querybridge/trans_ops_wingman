@@ -30,6 +30,8 @@ class RetrieveProcedureInput(Strict):
     issue_type: IssueType
     region: Optional[RegionCode] = None
     customer_id: Optional[str] = None
+    # Describes the situation; used only to rank sections of the procedures that apply.
+    query: Optional[str] = Field(default=None, max_length=1000)
 
 
 # --- Generated outputs -------------------------------------------------------
