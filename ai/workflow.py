@@ -9,6 +9,8 @@ import time
 from dataclasses import dataclass, field
 from typing import Any, Optional
 
+from langsmith import traceable
+
 from .evidence import build_briefing_evidence, build_shipment_evidence
 from .llm import ProviderError, ProviderTimeout, estimate_cost
 from .prompts import PROMPT_VERSION, briefing_messages, explain_messages, repair_message
@@ -67,6 +69,29 @@ def _generate(client, system, user, schema, validate, evidence):
     return result
 
 
+def _trace_inputs(inputs):
+    """Drop the client object; keep the scope arguments readable in the trace."""
+    return {k: (v.isoformat() if hasattr(v, "isoformat") else v) for k, v in inputs.items() if k != "client"}
+
+
+def _trace_outputs(result):
+    return {
+        "status": result.status,
+        "attempts": result.attempts,
+        "errors": result.errors,
+        "repair_reasons": result.repair_reasons,
+        "model": result.model,
+        "prompt_version": result.prompt_version,
+        "input_tokens": result.input_tokens,
+        "output_tokens": result.output_tokens,
+        "estimated_cost_usd": result.cost_usd,
+        "output": result.output.model_dump() if result.output else None,
+    }
+
+
+# Traces go to LangSmith only when LANGSMITH_TRACING is on; otherwise these are no-ops.
+@traceable(name="explain_shipment", run_type="chain", process_inputs=_trace_inputs,
+           process_outputs=_trace_outputs, metadata={"prompt_version": PROMPT_VERSION})
 def run_explanation(shipment_id, customer_id, as_of, client):
     """`customer_id` must come from validated application state, never from model output."""
     evidence = build_shipment_evidence(ToolContext(customer_id=customer_id, as_of=as_of), shipment_id)
@@ -79,6 +104,8 @@ def run_explanation(shipment_id, customer_id, as_of, client):
                      lambda text: validate_explanation(text, evidence), evidence)
 
 
+@traceable(name="manager_briefing", run_type="chain", process_inputs=_trace_inputs,
+           process_outputs=_trace_outputs, metadata={"prompt_version": PROMPT_VERSION})
 def run_briefing(customer_id, region, as_of, client, scope_label="All customers"):
     evidence = build_briefing_evidence(ToolContext(customer_id=customer_id, as_of=as_of), region, scope_label)
     if client is None:
@@ -86,3 +113,17 @@ def run_briefing(customer_id, region, as_of, client, scope_label="All customers"
     system, user = briefing_messages(evidence)
     return _generate(client, system, user, ManagerBriefing.model_json_schema(),
                      lambda text: validate_briefing(text, evidence), evidence)
+
+
+def flush_traces():
+    """Send pending LangSmith traces before the request ends.
+
+    PythonAnywhere web workers may not run background threads reliably, so
+    views flush explicitly. A tracing failure never affects the response.
+    """
+    try:
+        from langchain_core.tracers.langchain import wait_for_all_tracers
+
+        wait_for_all_tracers()
+    except Exception:  # noqa: BLE001 - tracing is optional
+        pass

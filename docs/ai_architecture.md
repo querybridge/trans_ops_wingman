@@ -17,4 +17,6 @@ Explicit, bounded workflows in `ai/`; no open-ended agent.
 
 **Tests stay offline:** `config/test_runner.OfflineTestRunner` blanks every provider credential for the test run, so a real key in `.env` can never turn a test into a paid call. Tests use `ai/testing.ScriptedLLMClient` or a mocked LangChain model. Neither is wired into views, and neither is evidence that a provider works. Only `run_evaluation --live` is.
 
-**Not yet connected (needs credentials):** Hugging Face embeddings, Pinecone, and LangSmith tracing.
+**Tracing** (LangSmith, optional): with `LANGSMITH_TRACING=true`, each workflow is a root trace (`explain_shipment` or `manager_briefing`). Its inputs are the scope arguments (shipment, customer, as-of). Its outputs are the status, attempts, validation and repair errors, tokens, estimated cost, and the validated output. Each LangChain Claude call is nested underneath. Views and `run_evaluation` flush traces before returning, because PythonAnywhere web workers may not run background threads reliably. Traces contain the synthetic evidence and prompts, never API keys. The test runner turns tracing off.
+
+**Not yet connected (needs credentials):** Hugging Face embeddings and Pinecone.

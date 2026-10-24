@@ -100,6 +100,7 @@ Then click **Reload** on the Web tab.
 ## Notes and limits
 
 - Web requests stay short: AI calls are bounded by `LLM_TIMEOUT_SECONDS` (default 30) with one repair attempt, and are rate-limited per user (`AI_RATE_LIMIT` per `AI_RATE_WINDOW_SECONDS`) via the database cache, which every worker process shares.
+- LangSmith traces are flushed synchronously at the end of each AI request (a few hundred milliseconds), so tracing doesn't depend on background threads in web workers.
 - No threads are started inside views. If longer processing is ever needed, a job queue is future work.
 - `check --deploy` leaves two deliberate warnings: HTTPS redirects are handled by PythonAnywhere's Force HTTPS (or set `DJANGO_SECURE_SSL_REDIRECT=true`), and HSTS is off for a demo subdomain (`DJANGO_SECURE_HSTS_SECONDS` enables it).
 - SQLite is fine for a single-user demo. A real deployment would move to MySQL or Postgres.

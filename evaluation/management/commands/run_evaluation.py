@@ -2,6 +2,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
 from ai.llm import get_llm_client
+from ai.workflow import flush_traces
 from evaluation.runner import Runner, save_run
 
 
@@ -19,6 +20,7 @@ class Command(BaseCommand):
             if client is None:
                 raise CommandError("No live LLM adapter is configured, so a live run isn't possible. Run without --live.")
         results, metrics = Runner(settings.DEMO_AS_OF, client).run()
+        flush_traces()
         for r in results:
             style = {"pass": self.style.SUCCESS, "partial": self.style.WARNING, "fail": self.style.ERROR}[r.status]
             self.stdout.write(style(f"{r.id:6} {r.category:22} {r.status}"))

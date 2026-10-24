@@ -5,7 +5,7 @@ from django.views.decorators.http import require_GET, require_POST
 
 from ai.llm import get_llm_client
 from ai.status import ai_available, provider_status
-from ai.workflow import run_briefing, run_explanation
+from ai.workflow import flush_traces, run_briefing, run_explanation
 from evaluation.models import EvaluationRun
 from operations.rules import rule_definitions
 from operations.services import (
@@ -83,6 +83,7 @@ def explain_shipment(request, shipment_id):
         return render(request, "web/partials/ai_state.html", {"state": state, "retry_url": request.path})
     # Scope is the shipment's own customer, taken from the database, not from the request or the model.
     result = run_explanation(shipment.shipment_id, shipment.customer.customer_id, settings.DEMO_AS_OF, client)
+    flush_traces()
     if not result.ok:
         return _render_failure(request, result)
     return render(request, "web/partials/explanation.html", {"result": result, "x": result.output})
@@ -101,6 +102,7 @@ def generate_briefing(request):
         dict(form.fields["region"].choices).get(region) if region else "All regions",
     ]))
     result = run_briefing(customer_id, region, settings.DEMO_AS_OF, client, scope_label=label)
+    flush_traces()
     if not result.ok:
         return _render_failure(request, result)
     return render(request, "web/partials/briefing_result.html", {"result": result, "b": result.output, "scope": {"customer": customer_id or ""}})
