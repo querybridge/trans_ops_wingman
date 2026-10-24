@@ -56,6 +56,11 @@ def validate_explanation(text, evidence):
     return ValidationOutcome(output=None if errors else out, errors=errors)
 
 
+# Claims of absence the briefing evidence can contradict (procedures) or cannot support (notes).
+NO_PROCEDURE = re.compile(r"\bno\b[^.]{0,40}\b(procedure|sop)s?\b|\b(procedure|sop)s?\b[^.]{0,20}\bnot (on file|available)", re.I)
+NO_NOTES = re.compile(r"\bno\b[^.]{0,30}\b(dispatch )?notes?\b[^.]{0,20}\b(on file|recorded|available)", re.I)
+
+
 def validate_briefing(text, evidence):
     out, errors = _parse(text, ManagerBriefing)
     if out is None:
@@ -74,4 +79,13 @@ def validate_briefing(text, evidence):
     unknown = _unknown_ids([i for item in out.items for i in item.evidence_ids], evidence)
     if unknown:
         errors.append(f"cites IDs that are not in the evidence: {', '.join(unknown)}")
+    covered = {f["shipment_id"] for f in evidence.flags if f.get("procedure_on_file")}
+    for item in out.items:
+        text = f"{item.summary} {item.recommended_next_action}"
+        if item.shipment_id in covered and NO_PROCEDURE.search(text):
+            errors.append(f"{item.shipment_id}: says no procedure is on file, but one is (see procedure_section_ids)")
+        if NO_NOTES.search(text):
+            errors.append(f"{item.shipment_id}: claims dispatch notes are missing; notes are not part of briefing evidence")
+    if NO_NOTES.search(out.summary):
+        errors.append("summary claims dispatch notes are missing; notes are not part of briefing evidence")
     return ValidationOutcome(output=None if errors else out, errors=errors)

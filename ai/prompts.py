@@ -4,7 +4,7 @@ import json
 
 from .schemas import ManagerBriefing, ShipmentExplanation
 
-PROMPT_VERSION = "v2"
+PROMPT_VERSION = "v3"
 
 SHARED_RULES = """\
 You support a regional delivery operations manager. Follow these rules:
@@ -19,7 +19,14 @@ You support a regional delivery operations manager. Follow these rules:
 - Respond with a single JSON object that matches the schema. No prose outside the JSON."""
 
 EXPLAIN_SYSTEM = SHARED_RULES + "\n\nTask: explain why this shipment needs attention and propose the next action and responsible role."
-BRIEFING_SYSTEM = SHARED_RULES + "\n\nTask: write a short briefing for the manager covering every flagged shipment in scope, with proposed actions."
+BRIEFING_SYSTEM = SHARED_RULES + (
+    "\n\nTask: write a short briefing for the manager covering every flagged shipment in scope, with proposed actions."
+    "\nEach exception flag says whether a procedure is on file (procedure_on_file) and lists its most relevant procedure"
+    " sections (procedure_section_ids). Base each item's action on those sections and cite them. Say a procedure is"
+    " missing only when procedure_on_file is false. Dispatch notes and timelines are not in this evidence; never say"
+    " they are missing."
+    "\nPut evidence IDs only in evidence_ids; keep summary and recommended_next_action as plain sentences without IDs."
+)
 
 
 def _user_message(evidence, schema_model):

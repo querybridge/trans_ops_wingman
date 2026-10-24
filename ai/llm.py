@@ -46,7 +46,7 @@ class LLMResponse:
 class LLMClient(Protocol):
     model: str
 
-    def complete(self, system: str, user: str, schema: dict) -> LLMResponse: ...
+    def complete(self, system: str, user: str, schema: dict, effort: Optional[str] = None) -> LLMResponse: ...
 
 
 def estimate_cost(model, input_tokens, output_tokens):
@@ -73,7 +73,8 @@ class AnthropicClient:
             effort=effort,
         )
 
-    def complete(self, system, user, schema):
+    def complete(self, system, user, schema, effort=None):
+        """`effort` overrides the client default for this call."""
         import anthropic
         import httpx
         from langchain_core.messages import HumanMessage, SystemMessage
@@ -84,6 +85,7 @@ class AnthropicClient:
             message = self._chat.invoke(
                 [SystemMessage(system), HumanMessage(user)],
                 output_config={"format": output_format},
+                **({"effort": effort} if effort else {}),
             )
         except (anthropic.APITimeoutError, httpx.TimeoutException) as exc:
             raise ProviderTimeout("The language model did not respond in time.") from exc

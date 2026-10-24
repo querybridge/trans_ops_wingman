@@ -54,7 +54,7 @@ class _TimeoutClient:
 
     model = "fault-injection-timeout"
 
-    def complete(self, system, user, schema):
+    def complete(self, system, user, schema, effort=None):
         raise ProviderTimeout("injected timeout")
 
 
@@ -198,11 +198,17 @@ class Runner:
                    (case["expected_shipment_count"], case["expected_exception_count"]), f"got {det}")
         self.check(r, "flagged_shipments", sorted({f["shipment_id"] for f in pkg.flags}) == case["expected_shipments"])
         if not self.live:
+            self.skip(r, "actions_cite_procedures_when_on_file")
             return self.skip(r, "briefing_valid_with_matching_counts")
         ai = run_briefing(case["customer_id"], case["region"], self.as_of, self.client)
         self.ai_calls.append(ai)
         r.ai_output = ai.output.model_dump() if ai.ok else None
         self.check(r, "briefing_valid_with_matching_counts", ai.ok, "; ".join(ai.errors[:2]))
+        covered = {f["shipment_id"] for f in pkg.flags if f.get("procedure_on_file")}
+        self.check(r, "procedure_evidence_given_for_covered_flags", bool(covered) and all(
+            f["procedure_section_ids"] for f in pkg.flags if f["shipment_id"] in covered))
+        self.ai_check(r, ai, "actions_cite_procedures_when_on_file", lambda o: all(
+            any(i.startswith("SOP-") for i in item.evidence_ids) for item in o.items if item.shipment_id in covered))
 
     def provider_timeout(self, case, r):
         result = run_explanation(case["shipment_id"], case["customer_id"], self.as_of, _TimeoutClient())

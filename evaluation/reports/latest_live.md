@@ -1,10 +1,10 @@
 # Evaluation Report (live)
 
-- Run: 2026-10-24 16:25 EDT
-- Dataset v1, cases v1, prompt v2
+- Run: 2026-10-24 16:44 EDT
+- Dataset v1, cases v1, prompt v3
 - Language model: claude-opus-5-5; embeddings: BAAI/bge-small-en-v1.5
 - Cases: 20 pass, 0 partial (live-model checks skipped), 0 fail
-- Checks: 61 pass, 0 fail, 0 skipped
+- Checks: 63 pass, 0 fail, 0 skipped
 
 ## Exception rules vs ground truth
 Precision 1.0, recall 1.0, severity agreement 1.0; 9/9 expected flags found, 0 false positives, 0 flagged shipments in the 92-shipment normal cohort.
@@ -16,7 +16,7 @@ Hit rate at k=5: 1.0 over 4 expected sections. Method: semantic: BAAI/bge-small-
 0 isolation failures.
 
 ## AI
-{"calls": 12, "valid_output_rate": 1.0, "repaired": 0, "latency_ms_median": 11885, "latency_ms_max": 16882, "input_tokens": 58404, "output_tokens": 14974, "estimated_cost_usd": 0.5331, "repair_reasons": []}
+{"calls": 12, "valid_output_rate": 1.0, "repaired": 0, "latency_ms_median": 12069, "latency_ms_max": 15307, "input_tokens": 61381, "output_tokens": 15266, "estimated_cost_usd": 0.5508, "repair_reasons": []}
 
 ## Cases
 | Case | Category | Status | Failed or skipped checks |

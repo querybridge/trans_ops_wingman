@@ -141,6 +141,32 @@ class ValidationTests(SeededTestCase):
         self.assertFalse(validate_briefing(json.dumps({**good, "shipment_count": 5}), pkg).ok)
         self.assertFalse(validate_briefing(json.dumps({**good, "items": items[1:]}), pkg).ok)
 
+    def test_briefing_evidence_marks_procedure_availability(self):
+        pkg = build_briefing_evidence(ToolContext(None, AS_OF), region="tampa")
+        by_shipment = {f["shipment_id"]: f for f in pkg.flags}
+        self.assertTrue(by_shipment["SHP-00031"]["procedure_on_file"])
+        self.assertTrue(by_shipment["SHP-00031"]["procedure_section_ids"])
+        self.assertTrue(all(i.startswith("SOP-FA-HHG@v1#") for i in by_shipment["SHP-00031"]["procedure_section_ids"]))
+        self.assertTrue(all(i in pkg.ids for f in pkg.flags for i in f["procedure_section_ids"]))
+        self.assertIn("not_included", pkg.to_payload())
+        cks = build_briefing_evidence(ToolContext("CUST-CKS", AS_OF), region="jacksonville")
+        self.assertFalse(cks.flags[0]["procedure_on_file"])
+        self.assertFalse(any(p["chunk_id"].startswith("SOP-FA-HHG") for p in cks.procedures))
+
+    def test_briefing_rejects_false_absence_claims(self):
+        pkg = build_briefing_evidence(ToolContext(None, AS_OF), region="tampa")
+
+        def briefing(action, summary="s"):
+            items = [{"shipment_id": f["shipment_id"], "issue_category": f["rule"], "summary": "s",
+                      "recommended_next_action": action, "proposed_responsible_role": "r", "evidence_ids": [f["flag_id"]]}
+                     for f in pkg.flags]
+            return json.dumps({"summary": summary, "shipment_count": 4, "exception_count": 4, "items": items, "requires_review": False})
+
+        self.assertTrue(validate_briefing(briefing("Follow the reattempt steps in the SOP."), pkg).ok)
+        outcome = validate_briefing(briefing("No procedure is on file for this issue."), pkg)
+        self.assertIn("says no procedure is on file", " ".join(outcome.errors))
+        self.assertFalse(validate_briefing(briefing("a", summary="No dispatch notes are on file."), pkg).ok)
+
 
 class WorkflowTests(SeededTestCase):
     def test_valid_first_response(self):

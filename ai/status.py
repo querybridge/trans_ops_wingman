@@ -27,7 +27,7 @@ def provider_status():
         {
             "name": "Language model",
             "configured": llm_configured(),
-            "detail": f"{settings.LLM_PROVIDER} via LangChain · {settings.LLM_MODEL or 'no model set'} · effort {settings.LLM_EFFORT}",
+            "detail": f"{settings.LLM_PROVIDER} via LangChain · {settings.LLM_MODEL or 'no model set'} · effort {settings.LLM_EFFORT} (briefings {settings.LLM_BRIEFING_EFFORT})",
         },
         {
             "name": "Tracing (LangSmith, optional)",

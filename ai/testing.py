@@ -14,8 +14,8 @@ class ScriptedLLMClient:
         self.responses = list(responses)
         self.calls = []
 
-    def complete(self, system, user, schema):
-        self.calls.append({"system": system, "user": user})
+    def complete(self, system, user, schema, effort=None):
+        self.calls.append({"system": system, "user": user, "effort": effort})
         item = self.responses.pop(0)
         if isinstance(item, Exception):
             raise item

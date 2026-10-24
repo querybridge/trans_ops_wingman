@@ -38,6 +38,13 @@ class AdapterTests(SimpleTestCase):
         self.assertEqual(output_format["type"], "json_schema")
         self.assertFalse(output_format["schema"]["additionalProperties"])
 
+    def test_effort_override_is_passed_per_call(self):
+        with mock.patch.object(type(self.client._chat), "invoke", side_effect=[reply(), reply()]) as invoke:
+            self.client.complete("s", "u", SCHEMA, effort="low")
+            self.client.complete("s", "u", SCHEMA)
+        self.assertEqual(invoke.call_args_list[0].kwargs["effort"], "low")
+        self.assertNotIn("effort", invoke.call_args_list[1].kwargs)
+
     def test_refusal_and_truncation_are_provider_errors(self):
         for stop_reason in ("refusal", "max_tokens"):
             with self.subTest(stop_reason=stop_reason), self.assertRaises(ProviderError):

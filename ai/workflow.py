@@ -9,6 +9,7 @@ import time
 from dataclasses import dataclass, field
 from typing import Any, Optional
 
+from django.conf import settings
 from langsmith import traceable
 
 from .evidence import build_briefing_evidence, build_shipment_evidence
@@ -44,14 +45,14 @@ class AIResult:
         return estimate_cost(self.model, self.input_tokens, self.output_tokens)
 
 
-def _generate(client, system, user, schema, validate, evidence):
+def _generate(client, system, user, schema, validate, evidence, effort=None):
     result = AIResult(status="invalid_output", evidence=evidence, model=getattr(client, "model", None))
     started = time.monotonic()
     prompt = user
     try:
         for attempt in range(1, MAX_ATTEMPTS + 1):
             result.attempts = attempt
-            response = client.complete(system, prompt, schema)
+            response = client.complete(system, prompt, schema, effort=effort)
             result.input_tokens = (result.input_tokens or 0) + (response.input_tokens or 0)
             result.output_tokens = (result.output_tokens or 0) + (response.output_tokens or 0)
             outcome = validate(response.text)
@@ -111,8 +112,9 @@ def run_briefing(customer_id, region, as_of, client, scope_label="All customers"
     if client is None:
         return AIResult(status="unconfigured", evidence=evidence)
     system, user = briefing_messages(evidence)
+    # Briefings restate deterministic results and cited procedures, so lower effort keeps them quick.
     return _generate(client, system, user, ManagerBriefing.model_json_schema(),
-                     lambda text: validate_briefing(text, evidence), evidence)
+                     lambda text: validate_briefing(text, evidence), evidence, effort=settings.LLM_BRIEFING_EFFORT)
 
 
 def flush_traces():

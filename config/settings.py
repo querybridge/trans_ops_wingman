@@ -164,6 +164,7 @@ ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 LLM_TIMEOUT_SECONDS = float(os.environ.get("LLM_TIMEOUT_SECONDS", "30"))
 # Reasoning effort (low | medium | high | xhigh | max): higher is slower and costs more.
 LLM_EFFORT = os.environ.get("LLM_EFFORT", "medium")
+LLM_BRIEFING_EFFORT = os.environ.get("LLM_BRIEFING_EFFORT", "low")
 # Room for adaptive thinking plus the JSON answer.
 LLM_MAX_TOKENS = int(os.environ.get("LLM_MAX_TOKENS", "8000"))
 

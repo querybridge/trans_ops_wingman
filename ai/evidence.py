@@ -14,6 +14,8 @@ MAX_EVENTS = 25
 MAX_NOTES = 10
 MAX_NOTE_CHARS = 600
 MAX_BRIEFING_FLAGS = 25
+BRIEFING_SECTIONS_PER_FLAG = 3
+BRIEFING_SECTION_CHARS = 500
 
 
 @dataclass
@@ -75,6 +77,12 @@ class EvidencePackage:
             ]
             payload["procedures"] = self.procedures
             payload["procedure_gaps"] = self.procedure_gaps
+        else:
+            payload["procedures"] = self.procedures
+            payload["not_included"] = (
+                "Dispatch notes and event timelines are not part of this briefing evidence; they are on each "
+                "shipment's page. Do not describe them as missing or absent."
+            )
         if self.truncated:
             payload["note"] = "Evidence was truncated to stay within limits."
         return payload
@@ -130,4 +138,31 @@ def build_briefing_evidence(ctx, region=None, scope_label="All customers"):
         "exception_count": len(flags),
         "by_rule": {rule: sum(1 for f in flags if f["rule"] == rule) for rule in dict.fromkeys(f["rule"] for f in flags)},
     }
+
+    # Tell the model, per flag, whether a procedure applies, with its most relevant sections.
+    # Procedures are scoped to each shipment's own customer, read from the database.
+    def add_sections(sections):
+        for section in sections[:BRIEFING_SECTIONS_PER_FLAG]:
+            if section["chunk_id"] not in seen:
+                seen.add(section["chunk_id"])
+                pkg.procedures.append({**section, "text": _clip(section["text"], BRIEFING_SECTION_CHARS)})
+        return [section["chunk_id"] for section in sections[:BRIEFING_SECTIONS_PER_FLAG]]
+
+    seen = set()
+    for flag in pkg.flags:
+        facts = tools.get_shipment(ctx, ShipmentInput(shipment_id=flag["shipment_id"]))
+        shipment_ctx = tools.ToolContext(customer_id=facts["customer_id"], as_of=ctx.as_of)
+        query = tools.procedure_query(flag["rule"], [flag["reason"]])
+        result = tools.retrieve_procedure(
+            shipment_ctx, RetrieveProcedureInput(issue_type=flag["rule"], region=facts["region"], query=query))
+        pkg.retrieval.append(result["retrieval"])
+        flag["procedure_on_file"] = result["match"] != "none"
+        flag["procedure_section_ids"] = add_sections(result["sections"])
+        if not flag["procedure_on_file"]:
+            pkg.procedure_gaps.append(flag["flag_id"])
+    if pkg.flags:
+        shared_ctx = tools.ToolContext(customer_id=None, as_of=ctx.as_of)
+        escalation = tools.retrieve_procedure(shared_ctx, RetrieveProcedureInput(
+            issue_type="escalation", query=tools.procedure_query("escalation")))
+        add_sections(escalation["sections"])
     return pkg
