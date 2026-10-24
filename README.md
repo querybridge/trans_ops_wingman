@@ -1,6 +1,6 @@
 # Transportation Operations Wingman
 
-Decision-support prototype for regional delivery operations, built with synthetic data. Start with `docs/project_summary.md` for what it does and how it performed, and `docs/demo_script.md` for the 3-minute walkthrough. `SETUP_CREDENTIALS.md` covers provider accounts, and `BRAND_GUIDE.md` covers visual standards.
+Decision-support prototype for regional delivery operations, built with synthetic data. Live demo (sign-in required): https://opswingman-querybridge.pythonanywhere.com/ Start with `docs/project_summary.md` for what it does and how it performed, and `docs/demo_script.md` for the 3-minute walkthrough. `SETUP_CREDENTIALS.md` covers provider accounts, and `BRAND_GUIDE.md` covers visual standards.
 
 ## Local setup
 

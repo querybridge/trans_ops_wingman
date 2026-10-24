@@ -2,6 +2,8 @@
 
 **See which deliveries need attention, understand the evidence, and prepare the next action without searching several systems.**
 
+**Live demo:** https://opswingman-querybridge.pythonanywhere.com/ (sign-in required; demo account provided on request).
+
 This is a working prototype for a regional delivery operations manager. It is built on synthetic data and is an independent demonstration, not an official Yzer product or system.
 
 ## The problem

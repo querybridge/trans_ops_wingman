@@ -5,7 +5,7 @@
 import os
 import sys
 
-PROJECT_DIR = "/home/YOUR_USERNAME/yzer_demo"
+PROJECT_DIR = "/home/querybridge/yzer_demo"
 if PROJECT_DIR not in sys.path:
     sys.path.insert(0, PROJECT_DIR)
 
