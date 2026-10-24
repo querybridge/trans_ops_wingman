@@ -36,3 +36,6 @@ traces/
 .idea/
 .vscode/
 *.swp
+
+# Internal build brief (kept local, not published)
+Transportation_Operations_Wingman_Brief.md

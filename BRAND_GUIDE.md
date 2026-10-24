@@ -8,12 +8,12 @@ How to make the app look and feel like it belongs next to Yzer Next's public bra
 
 ## 1. Brand alignment boundaries (read first)
 
-The build brief says this is "an independent demonstration, not an official Yzer product." Being on brand means **looking familiar, not impersonating**:
+This is an independent demonstration, not an official Yzer product. Being on brand means **looking familiar, not impersonating**:
 
-- **Do** use Yzer's typeface, color palette, button shapes, and tone so the CIO sees the app fitting into their world.
+- **Do** use Yzer's typeface, color palette, button shapes, and tone so the app feels at home next to Yzer's existing digital presence.
 - **Don't** use the Yzer Next logo, wordmark, or "Yzer Next" name in the app's header, favicon, or page titles. The product name is **Transportation Operations Wingman**.
 - **Don't** reuse Yzer photography or marketing copy.
-- **Always** show the "Prototype - Synthetic data - For Demo Only" label (brief requirement).
+- **Always** show the "Prototype - Synthetic data - For Demo Only" label (project requirement).
 
 ---
 
@@ -112,7 +112,7 @@ Measured by classifying every pixel of a 1440px full-page homepage render agains
 **What this shows:** the brand is mostly white and light gray, anchored by large navy blocks. **Sky Blue covers less than 1% of the page but carries almost all the emphasis** (every primary button, eyebrow, and arrow). It's a spotlight color, not a fill color.
 
 ### Recommended color share for the app
-The site uses photography for about a quarter of the page; the app uses none (the brief rules out decorative imagery). So shift that share to neutrals and keep the navy and sky-blue roles intact:
+The site uses photography for about a quarter of the page; the app uses none (decorative imagery is out of scope). So shift that share to neutrals and keep the navy and sky-blue roles intact:
 
 | Color | Target share | Where it goes in the app |
 | --- | --- | --- |
@@ -157,7 +157,7 @@ The site has no status colors suitable for an operations dashboard. These are ch
 | Info / Unknown | `#045493` (Blue) | `#EEF4FA` | 7.03 | Unknown ETA, needs verification, conflicting evidence |
 
 - Always pair color with a text label ("Critical", "Warning"); never rely on color alone.
-- Severity labels are rule-based. Never style them like probabilities or scores (brief requirement).
+- Severity labels are rule-based. Never style them like probabilities or scores (project requirement).
 
 ---
 
@@ -208,7 +208,7 @@ The site uses simple line icons, and circular arrow buttons (sky-blue circle, wh
 - ID columns in monospace; numeric columns right-aligned with tabular figures
 
 ### Demo Documentation link (intentional exception)
-The footer's **Demo Documentation** link is deliberately **off brand**: bold, red `#C8102E` (token `--offbrand-red`, 5.35:1 on the light-gray footer, passes AA). It's meant to stand out so the CIO opens the documentation page (product promise, user workflow, provider status, evaluation results). Don't use this red anywhere else, and don't confuse it with the Critical status color `#B42318`.
+The footer's **Demo Documentation** link is deliberately **off brand**: bold, red `#C8102E` (token `--offbrand-red`, 5.35:1 on the light-gray footer, passes AA). It's meant to stand out so reviewers find the documentation page (product promise, user workflow, provider status, evaluation results). Don't use this red anywhere else, and don't confuse it with the Critical status color `#B42318`.
 
 ---
 
@@ -233,8 +233,7 @@ App copy guidelines:
 - Title Case for headings, buttons, and section labels; sentence case for body, explanations, and recommendations.
 - Plain, operational verbs: "Review", "Verify", "Contact dispatch", "Escalate to regional lead".
 - State uncertainty plainly: "ETA unavailable from source", "Notes conflict — verify with driver". This matches the brand's "reliability" promise better than confident guesses.
-- Keep technology names out of the manager workflow; put them on the Demo Documentation page (brief requirement).
-- No hiring language in the UI (brief requirement).
+- Keep technology names out of the manager workflow; put them on the Demo Documentation page.
 
 ---
 

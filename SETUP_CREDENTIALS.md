@@ -82,7 +82,7 @@ The last number printed must equal `EMBEDDING_DIMENSIONS`. If you get a 402 erro
 
 ## 3. Hosted LLM: Anthropic Claude API (recommended)
 
-The brief asks for "an available provider through a small adapter." Anthropic's Claude API is the default here. `LLM_PROVIDER`/`LLM_MODEL` keep this swappable.
+The project calls for "an available provider through a small adapter." Anthropic's Claude API is the default here. `LLM_PROVIDER`/`LLM_MODEL` keep this swappable.
 
 ### Set up
 1. Sign up at https://console.anthropic.com.

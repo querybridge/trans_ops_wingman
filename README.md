@@ -1,6 +1,6 @@
 # Transportation Operations Wingman
 
-Decision-support prototype for regional delivery operations, built with synthetic data. See `Transportation_Operations_Wingman_Brief.md` for scope, `SETUP_CREDENTIALS.md` for provider accounts, and `BRAND_GUIDE.md` for visual standards.
+Decision-support prototype for regional delivery operations, built with synthetic data. Start with `docs/project_summary.md` for what it does and how it performed, and `docs/demo_script.md` for the 3-minute walkthrough. `SETUP_CREDENTIALS.md` covers provider accounts, and `BRAND_GUIDE.md` covers visual standards.
 
 ## Local setup
 
