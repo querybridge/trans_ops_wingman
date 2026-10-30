@@ -31,6 +31,8 @@ class RuleConfig:
     missed_window_critical_after: timedelta = timedelta(minutes=60)
     # Missing scan becomes critical at this multiple of its threshold.
     missing_scan_critical_multiple: int = 2
+    # Escalation to the regional operations manager once this far past the window (SOP-ESC "When to escalate").
+    escalate_after_overdue: timedelta = timedelta(hours=2)
 
 
 DEFAULT_CONFIG = RuleConfig()
@@ -200,6 +202,23 @@ def evaluate(shipments, as_of, config=DEFAULT_CONFIG):
     for shipment in shipments:
         flags.extend(evaluate_shipment(shipment, as_of, config))
     return sort_flags(flags)
+
+
+def missed_window_escalation(flags, as_of, config=DEFAULT_CONFIG):
+    """Time-based escalation check for a shipment's flags, or None if it has no missed window.
+
+    Returns {"due": bool, "at": datetime, "limit": str}: due once the shipment is more than
+    `escalate_after_overdue` past its window end (not at exactly the limit).
+    """
+    missed = next((f for f in flags if f.rule == "missed_window"), None)
+    if missed is None:
+        return None
+    window_end = as_of - missed.age
+    return {
+        "due": missed.age > config.escalate_after_overdue,
+        "at": window_end + config.escalate_after_overdue,
+        "limit": format_duration(config.escalate_after_overdue),
+    }
 
 
 def rule_definitions(config=DEFAULT_CONFIG):

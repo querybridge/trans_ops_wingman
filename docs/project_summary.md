@@ -16,6 +16,7 @@ To answer "what needs my attention right now?", a manager reconciles a shipment 
 | --- | --- |
 | **Find exceptions** | Filter by customer and region. A queue shows the flagged shipments, highest severity first. Each flag has its rule, threshold and age, for example "Window ended 1:00 PM; not delivered." |
 | **Explain a shipment** | One screen holds the shipment facts, scan timeline, dispatch notes, and the procedure that applies to *that customer*. One click asks for a plain-language explanation. Every statement links back to its source, and the explanation proposes a next action and owner for review. |
+| **Work the critical list** | The Worklist screen shows only the critical deliveries. For each one: why it failed (the rule, the last event, and what the field reported) and what to do (the steps, owner, and escalation trigger from *that customer's* procedure, quoted with links to the source). It needs no AI, so it loads instantly. One click adds Wingman's recommended next step. A manager new to the region works from the same playbook a veteran would. |
 | **Brief the manager** | A summary of the current queue: counts, a proposed action per shipment grounded in the procedure on file, and links back to the records. |
 
 ## Why it can be trusted

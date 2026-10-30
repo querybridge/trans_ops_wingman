@@ -1,0 +1,27 @@
+{% url 'web:shipment_detail' shipment.shipment_id as detail_path %}
+{% with detail_url=detail_path|add:"?customer="|add:customer_scope %}
+<div class="ai-output">
+  <div class="ai-output__head">
+    <span class="badge badge--info">AI-generated · for review</span>
+    {% if x.requires_review %}<span class="badge badge--warning">Needs verification</span>{% endif %}
+  </div>
+
+  <h4 class="ai-label">Wingman's read</h4>
+  <p class="ai-output__summary">{{ x.summary }}</p>
+
+  {% for c in x.conflicts %}
+  <div class="callout callout--warning"><strong>Accounts conflict.</strong> {{ c.description }}{% for ref in c.evidence_ids %} <a class="id ref" href="{{ detail_url }}#{{ ref }}">{{ ref }}</a>{% endfor %}</div>
+  {% endfor %}
+
+  <h4 class="ai-label">Recommended next step</h4>
+  <p>{{ x.recommended_next_action.text }}{% for ref in x.recommended_next_action.evidence_ids %} <a class="id ref" href="{{ detail_url }}#{{ ref }}">{{ ref }}</a>{% endfor %}</p>
+  <p><strong>Proposed owner:</strong> {{ x.proposed_responsible_role }}</p>
+
+  {% if x.missing_information %}
+  <h4 class="ai-label">Find out first</h4>
+  <ul class="cited">{% for item in x.missing_information %}<li>{{ item }}</li>{% endfor %}</ul>
+  {% endif %}
+
+  <p class="caption">Model {{ result.model }} · prompt {{ result.prompt_version }} · {{ result.latency_ms }} ms{% if result.cost_usd is not None %} · est. ${{ result.cost_usd|floatformat:3 }}{% endif %}{% if result.attempts > 1 %} · repaired after an invalid first response{% endif %}. Citations were checked against this shipment's evidence. Review before acting.</p>
+</div>
+{% endwith %}

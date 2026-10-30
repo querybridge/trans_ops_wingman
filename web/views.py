@@ -14,6 +14,7 @@ from operations.services import (
     list_exceptions,
     procedures_for_flags,
     shipment_flags,
+    worklist,
 )
 
 from .forms import ExceptionFilterForm
@@ -72,10 +73,9 @@ def _render_failure(request, result):
     )
 
 
-@require_POST
-@ai_rate_limited
-def explain_shipment(request, shipment_id):
-    shipment = get_shipment(shipment_id, request.POST.get("customer") or None)
+def _explain(request, shipment_id, template):
+    customer_scope = request.POST.get("customer") or ""
+    shipment = get_shipment(shipment_id, customer_scope or None)
     if shipment is None:
         raise Http404("Shipment not found in the selected customer scope.")
     client, state = _ai_client_or_state()
@@ -86,7 +86,20 @@ def explain_shipment(request, shipment_id):
     flush_traces()
     if not result.ok:
         return _render_failure(request, result)
-    return render(request, "web/partials/explanation.html", {"result": result, "x": result.output})
+    return render(request, template, {"result": result, "x": result.output, "shipment": shipment, "customer_scope": customer_scope})
+
+
+@require_POST
+@ai_rate_limited
+def explain_shipment(request, shipment_id):
+    return _explain(request, shipment_id, "web/partials/explanation.html")
+
+
+@require_POST
+@ai_rate_limited
+def recommend_next_step(request, shipment_id):
+    """The same validated explanation, rendered as a compact recommendation for the worklist."""
+    return _explain(request, shipment_id, "web/partials/worklist_recommendation.html")
 
 
 @require_POST
@@ -106,6 +119,19 @@ def generate_briefing(request):
     if not result.ok:
         return _render_failure(request, result)
     return render(request, "web/partials/briefing_result.html", {"result": result, "b": result.output, "scope": {"customer": customer_id or ""}})
+
+
+@require_GET
+def worklist_view(request):
+    form = ExceptionFilterForm(request.GET or None)
+    customer_id, region = form.scope()
+    context = {
+        "form": form,
+        "items": worklist(customer_id, region, settings.DEMO_AS_OF),
+        "scope": {"customer": customer_id or "", "region": region or ""},
+    }
+    template = "web/partials/worklist_items.html" if _is_htmx(request) else "web/worklist.html"
+    return render(request, template, context)
 
 
 @require_GET

@@ -4,7 +4,7 @@ Customer scope is always passed in from validated application context.
 """
 
 from .models import Customer, Region, Shipment
-from .rules import evaluate, evaluate_shipment
+from .rules import evaluate, evaluate_shipment, missed_window_escalation, sort_flags
 
 
 def scoped_shipments(customer_id=None, region=None):
@@ -107,3 +107,59 @@ def procedures_for_flags(shipment, flags, as_of):
         label = ProcedureDocument.IssueType(issue).label.lower()
         groups.append({"issue_type": issue, "label": label, "documents": docs, "match": match})
     return groups
+
+
+# Procedure sections that define or scope a procedure rather than say what to do.
+REFERENCE_SECTIONS = {"scope", "purpose", "thresholds", "requirement", "grace period", "roles"}
+
+
+def _playbook(groups):
+    """Split procedure groups into action steps, owners, escalation guidance, and gaps.
+
+    Sections are quoted verbatim with their chunk IDs; nothing is paraphrased or generated.
+    """
+    plays, escalation, gaps = [], [], []
+    for group in groups:
+        if group["match"] == "none":
+            gaps.append(group["label"])
+            continue
+        for doc in group["documents"]:
+            chunks = [c for c in doc.chunks.all() if c.section.lower() not in REFERENCE_SECTIONS]
+            if group["issue_type"] == "escalation":
+                escalation.append({"document": doc, "sections": chunks})
+                continue
+            plays.append({
+                "label": group["label"],
+                "match": group["match"],
+                "document": doc,
+                "steps": [c for c in chunks if c.section.lower() != "ownership"],
+                "owners": [c for c in chunks if c.section.lower() == "ownership"],
+            })
+    return plays, escalation, gaps
+
+
+def worklist(customer_id, region, as_of):
+    """Shipments with at least one critical flag, worst first, with why they failed and what the procedures say to do."""
+    flags = list_exceptions(customer_id, region, as_of)
+    order = list(dict.fromkeys(f.shipment_id for f in flags if f.severity == "critical"))
+    shipments = {
+        s.shipment_id: s
+        for s in scoped_shipments(customer_id, region).filter(shipment_id__in=order).prefetch_related("events", "notes")
+    }
+    items = []
+    for shipment_id in order:
+        shipment = shipments[shipment_id]
+        shipment_flags = sort_flags([f for f in flags if f.shipment_id == shipment_id])
+        events = [e for e in shipment.events.all() if e.occurred_at <= as_of]
+        plays, escalation, gaps = _playbook(procedures_for_flags(shipment, shipment_flags, as_of))
+        items.append({
+            "shipment": shipment,
+            "flags": shipment_flags,
+            "last_event": events[-1] if events else None,
+            "notes": [n for n in shipment.notes.all() if n.noted_at <= as_of],
+            "plays": plays,
+            "gaps": gaps,
+            "escalation": escalation,
+            "escalation_check": missed_window_escalation(shipment_flags, as_of),
+        })
+    return items

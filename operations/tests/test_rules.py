@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, timezone
 from django.test import TestCase
 
 from operations.models import Customer, Region, Shipment, ShipmentEvent
-from operations.rules import evaluate, evaluate_shipment, format_duration
+from operations.rules import evaluate, evaluate_shipment, format_duration, missed_window_escalation
 
 EDT = timezone(timedelta(hours=-4))
 AS_OF = datetime(2026, 10, 21, 15, 0, tzinfo=EDT)
@@ -59,6 +59,20 @@ class MissedWindowTests(RuleTestCase):
         cancelled = self.make(S.CANCELLED, window_end=past, sid="C")
         self.assertEqual(self.rules(delivered), {})
         self.assertEqual(self.rules(cancelled), {})
+
+
+class EscalationTests(RuleTestCase):
+    def test_escalation_due_only_after_two_hours_past_window(self):
+        at_limit = self.make(S.OUT_FOR_DELIVERY, window_end=AS_OF - timedelta(hours=2), events=self.recent_scan(), sid="A")
+        past_limit = self.make(S.OUT_FOR_DELIVERY, window_end=AS_OF - timedelta(hours=2, minutes=1), events=self.recent_scan(), sid="B")
+        check = missed_window_escalation(evaluate_shipment(at_limit, AS_OF), AS_OF)
+        self.assertEqual(check["due"], False)
+        self.assertEqual(check["at"], AS_OF)
+        self.assertTrue(missed_window_escalation(evaluate_shipment(past_limit, AS_OF), AS_OF)["due"])
+
+    def test_no_missed_window_means_no_time_based_escalation(self):
+        s = self.make(S.ATTEMPTED, events=[(E.DELIVERY_ATTEMPT_FAILED, AS_OF - timedelta(hours=1))])
+        self.assertIsNone(missed_window_escalation(evaluate_shipment(s, AS_OF), AS_OF))
 
 
 class MissingScanTests(RuleTestCase):

@@ -24,7 +24,9 @@
       {% if user.is_authenticated %}
       <nav class="appbar__nav" aria-label="Main">
         {% url 'web:dashboard' as dashboard_url %}
+        {% url 'web:worklist' as worklist_url %}
         <a href="{{ dashboard_url }}" {% if request.path == dashboard_url %}aria-current="page"{% endif %}>Exceptions</a>
+        <a href="{{ worklist_url }}" {% if request.path == worklist_url %}aria-current="page"{% endif %}>Worklist</a>
         <form method="post" action="{% url 'logout' %}" class="appbar__logout">
           {% csrf_token %}
           <span class="appbar__user">{{ user.get_username }}</span>

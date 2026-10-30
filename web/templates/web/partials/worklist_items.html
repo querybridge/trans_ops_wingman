@@ -1,0 +1,111 @@
+{% if not items %}
+<div class="card empty-state">
+  <h3>No Critical Deliveries in This Scope</h3>
+  <p class="muted">Nothing for the selected customer and region is critical as of the demo timestamp. Warnings are listed on the <a href="{% url 'web:dashboard' %}?customer={{ scope.customer }}&amp;region={{ scope.region }}">Exception Queue</a>.</p>
+</div>
+{% else %}
+<div class="worklist-bar">
+  <p class="muted"><strong class="num">{{ items|length }}</strong> critical deliver{{ items|length|pluralize:"y,ies" }}, worst first. The steps come straight from each customer's procedures, with no AI involved. A Wingman recommendation is optional and uses one AI request per delivery (about 12 seconds each).</p>
+  <button type="button" class="btn btn-primary btn-sm" hx-on:click="htmx.trigger(document.body, 'wingman-all')">Get All Recommendations</button>
+</div>
+
+{% for item in items %}
+{% with s=item.shipment %}
+{% url 'web:shipment_detail' s.shipment_id as detail_path %}
+{% with detail_url=detail_path|add:"?customer="|add:scope.customer %}
+<article class="card work-item" id="work-{{ s.shipment_id }}">
+  <header class="work-item__head">
+    <div>
+      <h2 class="id-heading"><span class="id">{{ s.shipment_id }}</span></h2>
+      <p class="muted">{{ s.customer.name }} · {{ s.get_region_display }} · {{ s.get_status_display }}</p>
+    </div>
+    <a class="btn btn-quiet btn-sm" href="{{ detail_url }}">Full Evidence →</a>
+  </header>
+
+  <div class="work-item__body">
+    <section>
+      <h3 class="section-title">Why It Failed</h3>
+      <ul class="flags">
+        {% for f in item.flags %}
+        <li class="flag">
+          <span class="badge badge--{{ f.severity }}">{{ f.severity|capfirst }}</span>
+          <div><strong>{{ f.rule_label }}</strong> · <span class="num">{{ f.age_display }}</span><div>{{ f.reason }}</div></div>
+        </li>
+        {% endfor %}
+      </ul>
+      <dl class="facts work-item__facts">
+        <div><dt>Last event</dt><dd>{% if item.last_event %}{{ item.last_event.get_event_type_display }} · <span class="num">{{ item.last_event.occurred_at|date:"g:i A" }}</span>{% else %}No events recorded{% endif %}</dd></div>
+        <div><dt>ETA</dt><dd>{% if s.eta %}<span class="num">{{ s.eta|date:"g:i A T" }}</span>{% else %}<span class="unknown">Unavailable from source</span>{% endif %}</dd></div>
+        <div><dt>Responsible role</dt><dd>{{ s.assigned_role|default:"Not assigned" }}</dd></div>
+      </dl>
+      <h4 class="ai-label">What the field reported</h4>
+      {% if item.notes %}
+      <ul class="notes">
+        {% for note in item.notes %}
+        <li class="note">
+          <div class="note__meta">{{ note.author_role }} · <time class="num">{{ note.noted_at|date:"g:i A" }}</time> <a class="id ref" href="{{ detail_url }}#{{ note.note_id }}">{{ note.note_id }}</a></div>
+          <p>{{ note.text }}</p>
+        </li>
+        {% endfor %}
+      </ul>
+      <p class="caption">Notes are quoted as written and may be incomplete or disputed. Verify before acting on them.</p>
+      {% else %}
+      <p class="muted">No dispatch notes for this shipment.</p>
+      {% endif %}
+    </section>
+
+    <section>
+      <h3 class="section-title">What to Do</h3>
+      {% for gap in item.gaps %}
+      <div class="callout callout--warning">
+        <strong>No {{ gap }} procedure on file</strong> for {{ s.customer.name }}. Another customer's procedure is not substituted. Decide the handling with the regional operations manager and record it in a dispatch note.
+      </div>
+      {% endfor %}
+      {% for play in item.plays %}
+      <div class="play">
+        <p class="play__source">{{ play.label|capfirst }}: <strong>{{ play.document.title }}</strong> <a class="id ref" href="{{ detail_url }}#{{ play.document.chunks.all.0.chunk_id }}">{{ play.document.document_id }} {{ play.document.version }}</a>{% if play.match == "customer" %} <span class="badge badge--info">{{ s.customer.name }} only</span>{% endif %}</p>
+        <ol class="steps">
+          {% for c in play.steps %}
+          <li><strong>{{ c.section }}.</strong> {{ c.text }} <a class="id ref" href="{{ detail_url }}#{{ c.chunk_id }}">{{ c.chunk_id }}</a></li>
+          {% endfor %}
+        </ol>
+        {% for c in play.owners %}
+        <p class="play__owner"><strong>Owner:</strong> {{ c.text }} <a class="id ref" href="{{ detail_url }}#{{ c.chunk_id }}">{{ c.chunk_id }}</a></p>
+        {% endfor %}
+      </div>
+      {% endfor %}
+
+      <h4 class="ai-label">When to escalate</h4>
+      {% if item.escalation_check %}
+        {% if item.escalation_check.due %}
+        <div class="callout callout--critical"><strong>Escalation due.</strong> More than {{ item.escalation_check.limit }} past the delivery window. Escalate to the regional operations manager.</div>
+        {% else %}
+        <div class="callout callout--warning"><strong>Escalate if not delivered by <span class="num">{{ item.escalation_check.at|date:"g:i A" }}</span></strong> ({{ item.escalation_check.limit }} past the window).</div>
+        {% endif %}
+      {% endif %}
+      {% for esc in item.escalation %}
+      <ul class="steps steps--plain">
+        {% for c in esc.sections %}
+        <li><strong>{{ c.section }}.</strong> {{ c.text }} <a class="id ref" href="{{ detail_url }}#{{ c.chunk_id }}">{{ c.chunk_id }}</a></li>
+        {% endfor %}
+      </ul>
+      {% empty %}
+      <p class="muted">No escalation procedure on file.</p>
+      {% endfor %}
+    </section>
+  </div>
+
+  <footer class="work-item__ai">
+    <form hx-post="{% url 'web:recommend_next_step' s.shipment_id %}" hx-target="#rec-{{ s.shipment_id }}"
+          hx-trigger="submit, wingman-all from:body" hx-indicator="#rec-loading-{{ s.shipment_id }}" hx-disabled-elt="find button">
+      <input type="hidden" name="customer" value="{{ scope.customer }}">
+      <button type="submit" class="btn btn-quiet btn-sm">Get Wingman Recommendation</button>
+      <span id="rec-loading-{{ s.shipment_id }}" class="htmx-indicator loading-text" role="status">Reviewing evidence and procedures…</span>
+    </form>
+    <div id="rec-{{ s.shipment_id }}" class="ai-result"></div>
+  </footer>
+</article>
+{% endwith %}
+{% endwith %}
+{% endfor %}
+{% endif %}

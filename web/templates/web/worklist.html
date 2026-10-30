@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Worklist · Transportation Operations Wingman{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <p class="eyebrow">Regional Operations</p>
+    <h1>Critical Worklist</h1>
+    <p class="muted">Each critical delivery, why it failed, and what the procedure on file says to do next.</p>
+  </div>
+</div>
+
+<form class="filter-bar" method="get" action="{% url 'web:worklist' %}"
+      hx-get="{% url 'web:worklist' %}" hx-target="#worklist" hx-push-url="true"
+      hx-trigger="change, submit" hx-indicator="#worklist-loading">
+  <label class="field field--inline">
+    <span class="field__label">Customer</span>
+    {{ form.customer }}
+  </label>
+  <label class="field field--inline">
+    <span class="field__label">Region</span>
+    {{ form.region }}
+  </label>
+  <noscript><button type="submit" class="btn btn-primary btn-sm">Apply</button></noscript>
+  <span id="worklist-loading" class="htmx-indicator loading-text" role="status">Updating…</span>
+</form>
+
+<section id="worklist" aria-live="polite">
+  {% include "web/partials/worklist_items.html" %}
+</section>
+{% endblock %}

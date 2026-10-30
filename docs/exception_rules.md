@@ -17,6 +17,10 @@ Scan limits: picked up 6h, in transit 6h, out for delivery 3h. POD grace: 60 min
 
 **Counts:** "Needing attention" counts distinct shipments. One shipment can carry several flags, so the flag count can be higher (v1 dataset: 8 shipments, 9 flags).
 
+**Escalation check (Worklist):** a missed window becomes "Escalation due" once the shipment is **more than** 2 hours past its window end (`RuleConfig.escalate_after_overdue`, from SOP-ESC "When to escalate"). At exactly 2 hours it shows "Escalate if not delivered by" that time. The other SOP-ESC triggers (package not located within two hours of the search, conflicting accounts) depend on facts the records don't hold, so the Worklist quotes them instead of evaluating them.
+
+**Worklist steps:** procedure sections are quoted verbatim. Sections that define or scope a procedure (Scope, Purpose, Thresholds, Requirement, Grace period, Roles) are left out of the action steps. Ownership sections become the "Owner" line. When no procedure exists for the customer and issue, the gap is shown and no other customer's procedure is substituted.
+
 Severity is a transparent rule outcome, never a learned probability.
 
 Boundary tests: `operations/tests/test_rules.py`.
