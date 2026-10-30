@@ -15,4 +15,5 @@ urlpatterns = [
     path("settings/", views.user_settings, name="settings"),
     path("briefing/", views.generate_briefing, name="generate_briefing"),
     path("documentation/", views.documentation, name="documentation"),
+    path("technology/", views.technology, name="technology"),
 ]

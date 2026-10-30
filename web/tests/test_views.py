@@ -102,3 +102,28 @@ class ViewTests(TestCase):
         self.assertContains(response, "How Shipments Are Flagged")
         self.assertContains(response, "Not configured")
         self.assertContains(response, "No Evaluation Runs Yet")
+
+
+@override_settings(**NO_PROVIDERS)
+class TechnologyMapTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = get_user_model().objects.create_user("demo", password="demo-pass-123")
+
+    def test_login_required(self):
+        response = self.client.get(reverse("web:technology"))
+        self.assertRedirects(response, f"{reverse('login')}?next={reverse('web:technology')}")
+
+    def test_map_lists_components_with_descriptions_and_honest_status(self):
+        self.client.force_login(self.user)
+        response = self.client.get(reverse("web:technology"))
+        self.assertContains(response, 'data-key="rules"')
+        self.assertContains(response, "The AI can&#x27;t change them.")
+        self.assertContains(response, 'data-key="pinecone"')
+        self.assertContains(response, "tech-dot--off")  # no provider keys in tests
+        self.assertNotContains(response, "tech-dot-svg tech-dot--ok")
+
+    def test_documentation_links_to_map(self):
+        self.client.force_login(self.user)
+        response = self.client.get(reverse("web:documentation"))
+        self.assertContains(response, f'href="{reverse("web:technology")}"')

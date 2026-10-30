@@ -370,3 +370,37 @@ strong { font-weight: 700; }
 .settings-card .checks { margin-top: 16px; }
 .errorlist { color: var(--critical); font-size: 13px; margin: 4px 0 0; padding: 0; list-style: none; }
 .messages { list-style: none; margin: 0 0 16px; padding: 0; }
+
+/* Technology map */
+.tech-legend { list-style: none; display: flex; flex-wrap: wrap; gap: 8px 20px; margin: 0 0 12px; padding: 0; font-size: 13px; color: var(--slate-strong); }
+.tech-legend li { display: inline-flex; align-items: center; gap: 8px; }
+.tech-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.tech-canvas { position: relative; min-width: 960px; }
+.tech-svg { display: block; width: 100%; height: auto; font-family: var(--font-sans); }
+.tech-lane { font-size: 12px; font-weight: 700; letter-spacing: .06em; fill: var(--brand-blue); }
+.tech-edge { fill: none; stroke: #B8C2CC; stroke-width: 1.6; transition: stroke .2s ease, opacity .2s ease; }
+.tech-edge--assist { stroke-dasharray: 5 4; }
+.tech-edge--bus { stroke-width: 2.2; }
+.tech-arrow { fill: #B8C2CC; }
+.tech-node { cursor: pointer; outline: none; }
+.tech-node rect { fill: var(--white); stroke: var(--gray-200); stroke-width: 1.5; transition: stroke .2s ease, fill .2s ease; }
+.tech-node--screen rect { fill: var(--info-bg); stroke: #B3CDE3; }
+.tech-node--platform rect { fill: var(--gray-50); }
+.tech-node__title { font-size: 14px; font-weight: 700; fill: var(--brand-navy); }
+.tech-node__sub { font-size: 11.5px; fill: var(--slate); }
+.tech-node:hover rect, .tech-node:focus-visible rect, .tech-node.is-active rect { stroke: var(--brand-blue); stroke-width: 2; fill: var(--white); }
+.tech-node:focus-visible rect { stroke: var(--brand-sky); stroke-width: 3; }
+.tech-canvas.is-focused .tech-edge { opacity: .3; }
+.tech-canvas.is-focused .tech-edge.is-active { opacity: 1; stroke: var(--brand-blue); }
+.tech-dot, .tech-dot-svg { display: inline-block; width: 10px; height: 10px; border-radius: 50%; }
+.tech-dot--ok { background: var(--ok); fill: var(--ok); }
+.tech-dot--off { background: var(--warning); fill: var(--warning); }
+.tech-tip {
+  position: absolute; z-index: 5; width: 280px; pointer-events: none;
+  background: var(--brand-navy); color: var(--white); border-radius: var(--radius-card);
+  padding: 10px 12px; box-shadow: 0 6px 20px rgba(0, 42, 78, .25); font-size: 13px; line-height: 1.45;
+}
+.tech-tip strong { display: block; color: var(--brand-sky); margin-bottom: 2px; }
+.tech-tip p { margin: 0; color: #E3EAF1; }
+.tech-hint { display: none; margin: 0 0 8px; }
+@media (max-width: 1000px) { .tech-hint { display: block; } }

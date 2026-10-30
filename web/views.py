@@ -20,6 +20,7 @@ from operations.services import (
 
 from .forms import ExceptionFilterForm, PreferenceForm, WorklistFilterForm
 from .models import UserPreference
+from .technology import diagram
 from .ratelimit import ai_rate_limited
 
 
@@ -153,6 +154,11 @@ def user_settings(request):
         messages.success(request, "Settings saved. Your worklist now opens with these filters.")
         return redirect("web:settings")
     return render(request, "web/settings.html", {"form": form})
+
+
+@require_GET
+def technology(request):
+    return render(request, "web/technology.html", {"d": diagram(provider_status())})
 
 
 @require_GET

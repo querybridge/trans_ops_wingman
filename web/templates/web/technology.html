@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block title %}Technology Map · Transportation Operations Wingman{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <p class="eyebrow">Integrations</p>
+    <h1>Technology Map</h1>
+    <p class="muted">How data moves from source systems to the manager's screens. Hover over or tap any component to see what it does.</p>
+  </div>
+  <a class="btn btn-quiet btn-sm" href="{% url 'web:documentation' %}">← Demo Documentation</a>
+</div>
+
+<section class="card tech-card">
+  <ul class="tech-legend" aria-label="Legend">
+    <li><svg width="28" height="10" aria-hidden="true"><line x1="0" y1="5" x2="28" y2="5" class="tech-edge tech-edge--flow"/></svg> Data flow</li>
+    <li><svg width="28" height="10" aria-hidden="true"><line x1="0" y1="5" x2="28" y2="5" class="tech-edge tech-edge--assist"/></svg> Ranking or tracing</li>
+    <li><span class="tech-dot tech-dot--ok"></span> Provider configured</li>
+    <li><span class="tech-dot tech-dot--off"></span> Provider not configured</li>
+  </ul>
+
+  <p class="caption tech-hint">Scroll sideways to see the full map.</p>
+  <div class="tech-scroll">
+    <div class="tech-canvas" id="tech-canvas">
+      <svg class="tech-svg" viewBox="0 0 {{ d.view_w }} {{ d.view_h }}" role="group" aria-labelledby="tech-title">
+        <title id="tech-title">Transportation Operations Wingman technology map</title>
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" class="tech-arrow"/>
+          </marker>
+        </defs>
+
+        {% for lane in d.lanes %}
+        <text class="tech-lane" x="{{ lane.x }}" y="52" text-anchor="middle">{{ lane.title|upper }}</text>
+        {% endfor %}
+
+        <g class="tech-edges">
+          {% for e in d.edges %}
+          <path class="tech-edge tech-edge--{{ e.style }}" d="{{ e.d }}" data-a="{{ e.a }}" data-b="{{ e.b }}"{% if e.style == "flow" or e.style == "assist" %} marker-end="url(#arrow)"{% endif %}/>
+          {% endfor %}
+        </g>
+
+        {% for n in d.nodes %}
+        <g class="tech-node{% if n.col == 4 and n.key != 'langsmith' %} tech-node--screen{% endif %}{% if n.provider %} tech-node--provider{% endif %}" tabindex="0" role="button"
+           data-key="{{ n.key }}" data-title="{{ n.title }}" data-desc="{{ n.description }}"
+           aria-label="{{ n.title }}: {{ n.description }}">
+          <rect x="{{ n.x }}" y="{{ n.y }}" width="{{ d.w }}" height="{{ d.h }}" rx="8"/>
+          <text class="tech-node__title" x="{{ n.x|add:14 }}" y="{{ n.y|add:24 }}">{{ n.title }}</text>
+          <text class="tech-node__sub" x="{{ n.x|add:14 }}" y="{{ n.y|add:42 }}">{{ n.subtitle|truncatechars:30 }}</text>
+          {% if n.configured is not None %}
+          <circle class="tech-dot-svg {% if n.configured %}tech-dot--ok{% else %}tech-dot--off{% endif %}" cx="{{ n.x|add:186 }}" cy="{{ n.y|add:14 }}" r="5"><title>{% if n.configured %}Configured{% else %}Not configured{% endif %}</title></circle>
+          {% endif %}
+        </g>
+        {% endfor %}
+
+        <text class="tech-lane" x="20" y="622">PLATFORM AND QUALITY</text>
+        {% for p in d.platform %}
+        <g class="tech-node tech-node--platform" tabindex="0" role="button" data-key="{{ p.key }}" data-title="{{ p.title }}" data-desc="{{ p.description }}"
+           aria-label="{{ p.title }}: {{ p.description }}">
+          <rect x="{{ p.x }}" y="{{ p.y }}" width="{{ p.w }}" height="44" rx="22"/>
+          <text class="tech-node__title" x="{{ p.cx }}" y="667" text-anchor="middle">{{ p.title }}</text>
+        </g>
+        {% endfor %}
+      </svg>
+      <div class="tech-tip" id="tech-tip" role="tooltip" hidden>
+        <strong id="tech-tip-title"></strong>
+        <p id="tech-tip-desc"></p>
+      </div>
+    </div>
+  </div>
+  <p class="caption">Rule results and validated AI output reach the screens together; the AI never decides what is flagged. Provider status reflects whether credentials are present on this server, not whether the service is responding.</p>
+</section>
+
+<script>
+(() => {
+  const canvas = document.getElementById("tech-canvas");
+  const tip = document.getElementById("tech-tip");
+  const edges = [...canvas.querySelectorAll(".tech-edge")];
+
+  function show(node) {
+    const key = node.dataset.key;
+    document.getElementById("tech-tip-title").textContent = node.dataset.title;
+    document.getElementById("tech-tip-desc").textContent = node.dataset.desc;
+    tip.hidden = false;
+    canvas.classList.add("is-focused");
+    canvas.querySelectorAll(".tech-node.is-active").forEach((n) => n.classList.remove("is-active"));
+    node.classList.add("is-active");
+    edges.forEach((e) => {
+      const ends = `${e.dataset.a} ${e.dataset.b}`.split(" ");
+      e.classList.toggle("is-active", ends.includes(key));
+    });
+    const box = node.getBoundingClientRect();
+    const frame = canvas.getBoundingClientRect();
+    const left = Math.min(Math.max(box.left - frame.left + box.width / 2 - tip.offsetWidth / 2, 8), frame.width - tip.offsetWidth - 8);
+    const below = box.bottom - frame.top + 8;
+    const top = below + tip.offsetHeight > frame.height ? box.top - frame.top - tip.offsetHeight - 8 : below;
+    tip.style.left = `${left}px`;
+    tip.style.top = `${top}px`;
+  }
+
+  function hide() {
+    tip.hidden = true;
+    canvas.classList.remove("is-focused");
+    canvas.querySelectorAll(".is-active").forEach((n) => n.classList.remove("is-active"));
+  }
+
+  canvas.querySelectorAll(".tech-node").forEach((node) => {
+    node.addEventListener("mouseenter", () => show(node));
+    node.addEventListener("focus", () => show(node));
+    node.addEventListener("mouseleave", () => { if (document.activeElement !== node) hide(); });
+    node.addEventListener("blur", hide);
+  });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") { document.activeElement.blur?.(); hide(); } });
+})();
+</script>
+{% endblock %}
