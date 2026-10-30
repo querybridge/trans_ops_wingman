@@ -118,10 +118,12 @@ strong { font-weight: 700; }
 .user-menu { position: relative; }
 .user-menu__toggle {
   list-style: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
-  color: var(--white); font-size: 16px; font-weight: 500; padding: 4px 2px; border-radius: 4px;
+  color: var(--white); font-size: 16px; font-weight: 500; padding: 5px 12px 5px 16px;
+  border: 1px solid rgba(255, 255, 255, .6); border-radius: var(--radius-pill); transition: var(--transition);
 }
 .user-menu__toggle::-webkit-details-marker { display: none; }
-.user-menu__toggle:hover { color: var(--brand-aqua); }
+.user-menu__toggle:hover { color: var(--brand-aqua); border-color: var(--brand-aqua); }
+.user-menu[open] .user-menu__toggle { background: rgba(255, 255, 255, .1); border-color: var(--white); }
 .user-menu__toggle:focus-visible { outline: 2px solid var(--brand-sky); outline-offset: 2px; }
 .user-menu__chevron { transition: transform .2s ease; }
 .user-menu[open] .user-menu__chevron { transform: rotate(180deg); }
