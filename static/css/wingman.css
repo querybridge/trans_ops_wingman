@@ -10,6 +10,7 @@
   --slate-strong: #5A5F63;
   --gray-50: #F4F4F4;
   --gray-200: #E6E6E6;
+  --gray-on-navy: #9AA3AD; /* medium gray, 5.7:1 on brand navy */
   --white: #FFFFFF;
 
   --critical: #B42318;  --critical-bg: #FEF3F2;
@@ -106,6 +107,7 @@ strong { font-weight: 700; }
 }
 .demo-clock { display: inline-flex; align-items: baseline; gap: 6px; font-size: 13px; }
 .demo-clock .eyebrow { margin: 0; font-size: 11px; }
+.demo-clock time { color: var(--gray-on-navy); }
 .appbar__nav { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; }
 .appbar__nav > a {
   color: var(--white); text-decoration: none; font-weight: 500; font-size: 14px;

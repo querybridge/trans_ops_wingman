@@ -144,7 +144,7 @@ Rule of thumb: a screenshot of any app screen should read as **white and navy wi
 **App rules that follow from this:**
 1. **Primary buttons:** Blue `#045493` with white text (7.79). Alternative: Sky Blue with **navy** text (7.24). Never white text on sky blue.
 2. **Eyebrow labels:** Blue `#045493` on light backgrounds; Sky Blue only on navy.
-3. **Muted text:** Slate only on white. On light gray, use Ink or a darker slate such as `#5A5F63`.
+3. **Muted text:** Slate only on white. On light gray, use Ink or a darker slate such as `#5A5F63`. On navy, use the medium gray `#9AA3AD` (5.7:1), as for the header's data-as-of date.
 
 ### Status / severity palette (app addition)
 The site has no status colors suitable for an operations dashboard. These are chosen to sit comfortably next to the blues, pass AA, and never be confused with brand blue:
