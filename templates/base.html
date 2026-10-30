@@ -13,25 +13,35 @@
 <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
   <header class="appbar on-navy">
     <div class="container appbar__inner">
-      <a class="appbar__title" href="{% url 'web:dashboard' %}">Transportation Operations Wingman</a>
-      <div class="appbar__meta">
-        <span class="prototype-label">Prototype - Synthetic data - For Demo Only</span>
+      <div class="appbar__brand">
+        <a class="appbar__title" href="{% url 'web:worklist' %}">Transportation Operations Wingman</a>
         <span class="demo-clock" title="Fixed demo timestamp; rules never use the real clock">
           <span class="eyebrow">Data as of</span>
           <time class="num" datetime="{{ demo_as_of|date:'c' }}">{{ demo_as_of|date:"M j, Y · g:i A T" }}</time>
         </span>
       </div>
+      <span class="prototype-label appbar__center">Prototype - Synthetic data - For Demo Only</span>
       {% if user.is_authenticated %}
       <nav class="appbar__nav" aria-label="Main">
         {% url 'web:dashboard' as dashboard_url %}
         {% url 'web:worklist' as worklist_url %}
-        <a href="{{ dashboard_url }}" {% if request.path == dashboard_url %}aria-current="page"{% endif %}>Exceptions</a>
+        {% url 'web:settings' as settings_url %}
         <a href="{{ worklist_url }}" {% if request.path == worklist_url %}aria-current="page"{% endif %}>Worklist</a>
-        <form method="post" action="{% url 'logout' %}" class="appbar__logout">
-          {% csrf_token %}
-          <span class="appbar__user">{{ user.get_username }}</span>
-          <button type="submit" class="btn btn-outline-light btn-sm">Sign Out</button>
-        </form>
+        <a href="{{ dashboard_url }}" {% if request.path == dashboard_url %}aria-current="page"{% endif %}>Exceptions</a>
+        <details class="user-menu">
+          <summary class="user-menu__toggle">
+            <span class="user-menu__name">{{ user.get_username }}</span>
+            <svg class="user-menu__chevron" width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 6l4.5 4.5L12.5 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="visually-hidden">account options</span>
+          </summary>
+          <div class="user-menu__list">
+            <a href="{{ settings_url }}" {% if request.path == settings_url %}aria-current="page"{% endif %}>Settings</a>
+            <form method="post" action="{% url 'logout' %}">
+              {% csrf_token %}
+              <button type="submit">Sign Out</button>
+            </form>
+          </div>
+        </details>
       </nav>
       {% endif %}
     </div>
@@ -50,5 +60,14 @@
       {% endif %}
     </div>
   </footer>
+  <script>
+    // Close the account menu on an outside click or Escape.
+    document.addEventListener("click", (e) => {
+      document.querySelectorAll("details.user-menu[open]").forEach((m) => { if (!m.contains(e.target)) m.open = false; });
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") document.querySelectorAll("details.user-menu[open]").forEach((m) => { m.open = false; m.querySelector("summary").focus(); });
+    });
+  </script>
 </body>
 </html>

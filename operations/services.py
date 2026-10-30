@@ -138,14 +138,17 @@ def _playbook(groups):
     return plays, escalation, gaps
 
 
-def worklist(customer_id, region, as_of):
-    """Shipments with at least one critical flag, worst first, with why they failed and what the procedures say to do."""
-    flags = list_exceptions(customer_id, region, as_of)
-    order = list(dict.fromkeys(f.shipment_id for f in flags if f.severity == "critical"))
-    shipments = {
-        s.shipment_id: s
-        for s in scoped_shipments(customer_id, region).filter(shipment_id__in=order).prefetch_related("events", "notes")
-    }
+def worklist(customer_id, regions, severities, as_of):
+    """Shipments with a flag at one of the chosen severities, worst first, with why they failed and what the procedures say to do.
+
+    Empty `regions` or `severities` means all of them.
+    """
+    qs = scoped_shipments(customer_id)
+    if regions:
+        qs = qs.filter(region__in=regions)
+    flags = evaluate(qs.prefetch_related("events"), as_of)
+    order = list(dict.fromkeys(f.shipment_id for f in flags if not severities or f.severity in severities))
+    shipments = {s.shipment_id: s for s in qs.filter(shipment_id__in=order).prefetch_related("events", "notes")}
     items = []
     for shipment_id in order:
         shipment = shipments[shipment_id]
@@ -155,6 +158,7 @@ def worklist(customer_id, region, as_of):
         items.append({
             "shipment": shipment,
             "flags": shipment_flags,
+            "severity": shipment_flags[0].severity,
             "last_event": events[-1] if events else None,
             "notes": [n for n in shipment.notes.all() if n.noted_at <= as_of],
             "plays": plays,

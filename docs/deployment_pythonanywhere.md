@@ -78,8 +78,10 @@ It checks the database, the 100 seeded shipments, procedures, the cache table, c
 Then in a browser:
 
 - [ ] `https://YOUR_USERNAME.pythonanywhere.com/` redirects to the sign-in page
-- [ ] Sign in as `demo`: the Exception Queue loads with the Plus Jakarta Sans font and navy header
-- [ ] Filter Region → Tampa: 36 shipments, 4 needing attention (SHP-00007, SHP-00031, SHP-00052, SHP-00078)
+- [ ] Sign in as `demo`: the Worklist loads (three critical deliveries) with the Plus Jakarta Sans font and navy header
+- [ ] Username menu → **Settings**: save Tampa with Critical and Warning; the Worklist then opens with four deliveries
+- [ ] Click **Exceptions**: the Exception Queue loads
+- [ ] On Exceptions, filter Region → Tampa: 36 shipments, 4 needing attention (SHP-00007, SHP-00031, SHP-00052, SHP-00078)
 - [ ] Open SHP-00031: timeline, two conflicting notes, SOP-FA-HHG and SOP-ESC sections
 - [ ] Open SHP-00046 (Jacksonville): "No failed delivery attempt procedure on file"
 - [ ] Explain Shipment and Generate Briefing show an honest "not configured" message (until providers are set)

@@ -1,7 +1,8 @@
 from django.conf import settings
+from django.contrib import messages
 from django.http import Http404
-from django.shortcuts import render
-from django.views.decorators.http import require_GET, require_POST
+from django.shortcuts import redirect, render
+from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
 from ai.llm import get_llm_client
 from ai.status import ai_available, provider_status
@@ -17,7 +18,8 @@ from operations.services import (
     worklist,
 )
 
-from .forms import ExceptionFilterForm
+from .forms import ExceptionFilterForm, PreferenceForm, WorklistFilterForm
+from .models import UserPreference
 from .ratelimit import ai_rate_limited
 
 
@@ -123,15 +125,34 @@ def generate_briefing(request):
 
 @require_GET
 def worklist_view(request):
-    form = ExceptionFilterForm(request.GET or None)
-    customer_id, region = form.scope()
+    # A bare /worklist/ applies the user's saved defaults; any submitted filter replaces them.
+    using_defaults = not request.GET
+    if using_defaults:
+        pref = UserPreference.for_user(request.user)
+        form = WorklistFilterForm(initial={"regions": pref.worklist_regions, "severities": pref.worklist_severities})
+        customer_id, regions, severities = None, pref.worklist_regions, pref.worklist_severities
+    else:
+        form = WorklistFilterForm(request.GET)
+        customer_id, regions, severities = form.scope()
     context = {
         "form": form,
-        "items": worklist(customer_id, region, settings.DEMO_AS_OF),
-        "scope": {"customer": customer_id or "", "region": region or ""},
+        "items": worklist(customer_id, regions, severities, settings.DEMO_AS_OF),
+        "scope": {"customer": customer_id or ""},
+        "using_defaults": using_defaults,
     }
     template = "web/partials/worklist_items.html" if _is_htmx(request) else "web/worklist.html"
     return render(request, template, context)
+
+
+@require_http_methods(["GET", "POST"])
+def user_settings(request):
+    pref = UserPreference.for_user(request.user)
+    form = PreferenceForm(request.POST or None, instance=pref)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Settings saved. Your worklist now opens with these filters.")
+        return redirect("web:settings")
+    return render(request, "web/settings.html", {"form": form})
 
 
 @require_GET

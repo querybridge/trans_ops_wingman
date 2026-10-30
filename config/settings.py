@@ -104,7 +104,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LOGIN_URL = "login"
-LOGIN_REDIRECT_URL = "web:dashboard"
+LOGIN_REDIRECT_URL = "web:worklist"
 LOGOUT_REDIRECT_URL = "login"
 
 LANGUAGE_CODE = "en-us"

@@ -1,19 +1,21 @@
+<p class="caption filter-note">Nothing checked in a group means all of it.
+  {% if using_defaults %}Showing your default filters. <a href="{% url 'web:settings' %}">Change defaults in Settings</a>.{% else %}<a href="{% url 'web:worklist' %}">Back to my defaults</a> · <a href="{% url 'web:settings' %}">Settings</a>{% endif %}</p>
 {% if not items %}
 <div class="card empty-state">
-  <h3>No Critical Deliveries in This Scope</h3>
-  <p class="muted">Nothing for the selected customer and region is critical as of the demo timestamp. Warnings are listed on the <a href="{% url 'web:dashboard' %}?customer={{ scope.customer }}&amp;region={{ scope.region }}">Exception Queue</a>.</p>
+  <h3>No Deliveries Match These Filters</h3>
+  <p class="muted">Nothing in the selected customer, regions, and urgency levels is flagged as of the demo timestamp. Try more regions or urgency levels, or see the full <a href="{% url 'web:dashboard' %}">Exception Queue</a>.</p>
 </div>
 {% else %}
 <div class="worklist-bar">
-  <p class="muted"><strong class="num">{{ items|length }}</strong> critical deliver{{ items|length|pluralize:"y,ies" }}, worst first. The steps come straight from each customer's procedures, with no AI involved. A Wingman recommendation is optional and uses one AI request per delivery (about 12 seconds each).</p>
-  <button type="button" class="btn btn-primary btn-sm" hx-on:click="htmx.trigger(document.body, 'wingman-all')">Get All Recommendations</button>
+  <p class="muted"><strong class="num">{{ items|length }}</strong> deliver{{ items|length|pluralize:"y,ies" }}, worst first. The steps come straight from each customer's procedures, with no AI involved. A Wingman recommendation is optional and uses one AI request per delivery (about 12 seconds each).</p>
+  <button type="button" class="btn btn-primary btn-sm" hx-on:click="htmx.trigger(document.body, 'wingman-all')">Get All {{ items|length }} Recommendation{{ items|length|pluralize }}</button>
 </div>
 
 {% for item in items %}
 {% with s=item.shipment %}
 {% url 'web:shipment_detail' s.shipment_id as detail_path %}
 {% with detail_url=detail_path|add:"?customer="|add:scope.customer %}
-<article class="card work-item" id="work-{{ s.shipment_id }}">
+<article class="card work-item work-item--{{ item.severity }}" id="work-{{ s.shipment_id }}">
   <header class="work-item__head">
     <div>
       <h2 class="id-heading"><span class="id">{{ s.shipment_id }}</span></h2>

@@ -4,8 +4,8 @@
 <div class="page-head">
   <div>
     <p class="eyebrow">Regional Operations</p>
-    <h1>Critical Worklist</h1>
-    <p class="muted">Each critical delivery, why it failed, and what the procedure on file says to do next.</p>
+    <h1>Worklist</h1>
+    <p class="muted">Each flagged delivery, why it failed, and what the procedure on file says to do next.</p>
   </div>
 </div>
 
@@ -16,14 +16,17 @@
     <span class="field__label">Customer</span>
     {{ form.customer }}
   </label>
-  <label class="field field--inline">
-    <span class="field__label">Region</span>
-    {{ form.region }}
-  </label>
+  <fieldset class="field checks">
+    <legend class="field__label">Regions</legend>
+    <div class="checks__row">{% for box in form.regions %}<label class="check">{{ box.tag }} {{ box.choice_label }}</label>{% endfor %}</div>
+  </fieldset>
+  <fieldset class="field checks">
+    <legend class="field__label">Urgency</legend>
+    <div class="checks__row">{% for box in form.severities %}<label class="check">{{ box.tag }} {{ box.choice_label }}</label>{% endfor %}</div>
+  </fieldset>
   <noscript><button type="submit" class="btn btn-primary btn-sm">Apply</button></noscript>
   <span id="worklist-loading" class="htmx-indicator loading-text" role="status">Updating…</span>
 </form>
-
 <section id="worklist" aria-live="polite">
   {% include "web/partials/worklist_items.html" %}
 </section>

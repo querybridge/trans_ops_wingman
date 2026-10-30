@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Settings · Transportation Operations Wingman{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <p class="eyebrow">Account</p>
+    <h1>Settings</h1>
+    <p class="muted">Signed in as {{ user.get_username }}.</p>
+  </div>
+</div>
+
+{% if messages %}
+<ul class="messages">
+  {% for message in messages %}<li class="callout callout--info" role="status">{{ message }}</li>{% endfor %}
+</ul>
+{% endif %}
+
+<section class="card settings-card">
+  <h2>Worklist Default Filters</h2>
+  <p class="muted">The Worklist opens with these filters. You can still change them on the page for a one-off view.</p>
+  <form method="post" action="{% url 'web:settings' %}">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <fieldset class="field checks">
+      <legend class="field__label">{{ form.worklist_regions.label }}</legend>
+      <div class="checks__row">{% for box in form.worklist_regions %}<label class="check">{{ box.tag }} {{ box.choice_label }}</label>{% endfor %}</div>
+      <p class="caption">{{ form.worklist_regions.help_text }}</p>
+      {{ form.worklist_regions.errors }}
+    </fieldset>
+    <fieldset class="field checks">
+      <legend class="field__label">{{ form.worklist_severities.label }}</legend>
+      <div class="checks__row">{% for box in form.worklist_severities %}<label class="check">{{ box.tag }} {{ box.choice_label }}</label>{% endfor %}</div>
+      <p class="caption">Critical: failed attempts, windows missed by an hour or more, scans overdue by twice the limit. Warning: everything else the rules flag.</p>
+      {{ form.worklist_severities.errors }}
+    </fieldset>
+    <div class="stack">
+      <div><button type="submit" class="btn btn-primary btn-sm">Save Settings</button>
+      <a class="btn btn-quiet btn-sm" href="{% url 'web:worklist' %}">Open Worklist</a></div>
+    </div>
+  </form>
+</section>
+{% endblock %}

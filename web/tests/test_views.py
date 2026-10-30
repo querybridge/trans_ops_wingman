@@ -41,7 +41,7 @@ class ViewTests(TestCase):
     def test_login_required(self):
         self.client.logout()
         response = self.client.get(reverse("web:dashboard"))
-        self.assertRedirects(response, f"{reverse('login')}?next=/")
+        self.assertRedirects(response, f"{reverse('login')}?next=/exceptions/")
 
     def test_dashboard_renders_brand_shell_and_rule_flags(self):
         response = self.client.get(reverse("web:dashboard"))
