@@ -12,13 +12,13 @@ As of Nov 2, 2026, the prototype is complete, deployed, and working end to end.
 | Data | 100 synthetic shipments, events, and notes, plus five SOP procedures in six versions (`docs/synthetic_dataset.md`). No real company data or systems are connected. |
 | Exception rules | Missed window, missing scan, failed attempt, missing proof of delivery, and the missed-window escalation trigger. Plain, tested Python (`docs/exception_rules.md`). |
 | Ingestion | CSV adapter with validation and a sample TMS export (`docs/tms_integration.md`). |
-| AI | Live through Claude via LangChain. Procedure sections are ranked by Hugging Face embeddings in Pinecone, only within the procedures the database allows, and traced in LangSmith. Every answer is schema-checked and citation-checked, with one repair attempt (`docs/ai_architecture.md`). |
+| AI | Live. Provider keys for Anthropic, Hugging Face, Pinecone, and LangSmith are configured locally and on the server, in `.env` only. Explanations come from Claude via LangChain. Procedure sections are ranked by Hugging Face embeddings in Pinecone, only within the procedures the database allows, and traced in LangSmith. Every answer is schema-checked and citation-checked, with one repair attempt (`docs/ai_architecture.md`). |
 | Evaluation | The latest live run passed 20 of 20 cases (63 of 63 checks) with no repairs, a median of 12 s per call, and an estimated $0.55 per run (`evaluation/reports/latest_live.md`). The same result was reproduced on the deployed server. The offline run also passes (`evaluation/reports/latest_offline.md`). |
 | Screens | Worklist (home), Exceptions, Shipment Detail, Manager Briefing, Settings, Demo Documentation, and Technology Map. |
 | Tests | 128 automated tests pass. Provider keys are blanked during tests, so no test makes a paid AI call. |
-| Safeguards | Django sign-in on every page. AI requests are limited to 20 per user per 10 minutes. Missing provider credentials show an honest "not configured" status rather than a stand-in answer. |
+| Safeguards | Django sign-in on every page. AI requests are limited to 20 per user per 10 minutes. If a provider key is ever removed, the app shows an honest "not configured" status rather than a stand-in answer. |
 
-Without provider credentials, everything except the AI output still works: the rules, Worklist steps, Exceptions queue, CSV import, and the offline evaluation.
+If the provider keys were removed, everything except the AI output would still work: the rules, Worklist steps, Exceptions queue, CSV import, and the offline evaluation.
 
 ## User Workflow
 
